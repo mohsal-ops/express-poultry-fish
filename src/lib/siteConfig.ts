@@ -1,9 +1,20 @@
-// Single source of truth for Express Poultry & Fish
+// Single source of truth for every brand-specific value on the site.
+// To onboard a new restaurant client, this is the only file that should
+// need to change (plus swapping image assets in /public).
 import { atLeast, type PackageTier } from "./packages";
 import type { ThemeSlug } from "./themes/registry";
 
+// Product tier this client is on. The panel patches this line per client at
+// provision time. It gates which site + admin sections show (via `minTier`
+// below and the admin nav). Defaults to PRO so the template/demo and any
+// pre-tier client that lacks this line keep the full feature set.
 const PACKAGE_TIER: PackageTier = "PRO";
 
+// Optional sections. Flip a flag to false to remove that section from the
+// navbar + footer (the new-project tool sets these per client). The route
+// still exists, it is simply not linked. Tier gating (`minTier`) is layered on
+// top: a section shows only when its flag is on AND the client's tier reaches
+// it, so FEATURES acts as a per-client on/off *within* the tier's ceiling.
 const FEATURES = {
   catering: true,
   giftCard: false,
@@ -20,13 +31,9 @@ const ALL_NAV_LINKS: NavLink[] = [
   { label: "Catering", href: "/catering", feature: "catering", minTier: "STANDARD" },
   { label: "Gift Card", href: "/GiftCard", feature: "giftCard", minTier: "STANDARD" },
   { label: "Rewards", href: "/rewards", feature: "rewards", minTier: "PRO" },
+  { label: "Kids Zone", href: "/KidsZone", minTier: "PRO" },
+  { label: "Press", href: "/Blog", feature: "blog", minTier: "STANDARD" },
   { label: "Our Story", href: "/story" },
-];
-
-const ALL_FOOTER_LINKS: NavLink[] = [
-  { label: "Menu", href: "/Menu" },
-  { label: "Catering", href: "/catering", feature: "catering", minTier: "STANDARD" },
-  { label: "Terms", href: "/terms" },
 ];
 
 const enabled = (l: NavLink) =>
