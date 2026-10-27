@@ -36,6 +36,12 @@ const ALL_NAV_LINKS: NavLink[] = [
   { label: "Our Story", href: "/story" },
 ];
 
+const ALL_FOOTER_LINKS: NavLink[] = [
+  { label: "Menu", href: "/Menu" },
+  { label: "Catering", href: "/catering", feature: "catering", minTier: "STANDARD" },
+  { label: "Terms", href: "/terms" },
+];
+
 const enabled = (l: NavLink) =>
   (!l.feature || FEATURES[l.feature]) && (!l.minTier || atLeast(PACKAGE_TIER, l.minTier));
 const pickLink = ({ label, href }: NavLink) => ({ label, href });
