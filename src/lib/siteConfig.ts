@@ -2,7 +2,7 @@
 import { atLeast, type PackageTier } from "./packages";
 import type { ThemeSlug } from "./themes/registry";
 
-const PACKAGE_TIER: PackageTier = "STANDARD";
+const PACKAGE_TIER: PackageTier = "PRO";
 
 const FEATURES = {
   catering: true,
@@ -42,7 +42,7 @@ export const SITE_CONFIG = {
   trademark: "Express Poultry & Fish",
 
   theme: "pop-bento" as ThemeSlug,
-  loaderStyle: "burger",
+  loaderStyle: "logo",
   defaultTheme: "light" as "light" | "dark",
   menuCtaLabel: "Order online",
 
