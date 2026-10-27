@@ -1,20 +1,9 @@
-// Single source of truth for every brand-specific value on the site.
-// To onboard a new restaurant client, this is the only file that should
-// need to change (plus swapping image assets in /public).
+// Single source of truth for Express Poultry & Fish
 import { atLeast, type PackageTier } from "./packages";
 import type { ThemeSlug } from "./themes/registry";
 
-// Product tier this client is on. The panel patches this line per client at
-// provision time. It gates which site + admin sections show (via `minTier`
-// below and the admin nav). Defaults to PRO so the template/demo and any
-// pre-tier client that lacks this line keep the full feature set.
-const PACKAGE_TIER: PackageTier = "PRO";
+const PACKAGE_TIER: PackageTier = "STANDARD";
 
-// Optional sections. Flip a flag to false to remove that section from the
-// navbar + footer (the new-project tool sets these per client). The route
-// still exists, it is simply not linked. Tier gating (`minTier`) is layered on
-// top: a section shows only when its flag is on AND the client's tier reaches
-// it, so FEATURES acts as a per-client on/off *within* the tier's ceiling.
 const FEATURES = {
   catering: true,
   giftCard: false,
@@ -31,280 +20,197 @@ const ALL_NAV_LINKS: NavLink[] = [
   { label: "Catering", href: "/catering", feature: "catering", minTier: "STANDARD" },
   { label: "Gift Card", href: "/GiftCard", feature: "giftCard", minTier: "STANDARD" },
   { label: "Rewards", href: "/rewards", feature: "rewards", minTier: "PRO" },
-  { label: "Kids Zone", href: "/KidsZone", minTier: "PRO" },
-  { label: "Press", href: "/Blog", feature: "blog", minTier: "STANDARD" },
   { label: "Our Story", href: "/story" },
 ];
 
 const ALL_FOOTER_LINKS: NavLink[] = [
   { label: "Menu", href: "/Menu" },
   { label: "Catering", href: "/catering", feature: "catering", minTier: "STANDARD" },
-  { label: "Gift Cards", href: "/GiftCard", feature: "giftCard", minTier: "STANDARD" },
   { label: "Terms", href: "/terms" },
 ];
 
-// A link shows when its feature flag is on (or it has none) AND the client's
-// tier reaches its minTier (or it has none).
 const enabled = (l: NavLink) =>
   (!l.feature || FEATURES[l.feature]) && (!l.minTier || atLeast(PACKAGE_TIER, l.minTier));
 const pickLink = ({ label, href }: NavLink) => ({ label, href });
 
 export const SITE_CONFIG = {
   // Brand
-  name: "Burnin Bird Hot Chicken",
-  tagline: "Halal Nashville Hot Chicken | Dupont Circle",
-  subTagline:
-    "",
-  legalName: "Burnin Bird Hot Chicken LLC",
-  trademark: "Burnin Bird",
+  name: "Express Poultry & Fish",
+  tagline: "Halal Fresh Poultry, Seafood & Carryout | Dearborn & Dearborn Heights",
+  subTagline: "Family owned & serving 100% Halal Amish chicken, Chester Fried Chicken, and fresh fish.",
+  legalName: "Express Poultry & Fish LLC",
+  trademark: "Express Poultry & Fish",
 
-  // Design skin for the public site. The panel patches this per client at
-  // provision time; it controls fonts/colors/motion/component styling only, not
-  // the section structure or sales copy (those are identical across themes).
-  // Defaults to "classic-starvega" (the current design). Existing client sites
-  // omit this line entirely (siteConfig is sync-blocklisted) and fall back to
-  // classic via resolveThemeSlug(), so nothing already live changes look.
-  // Options: classic-starvega | smash-bold | diner-classic | refined-elegant
-  theme: "classic-starvega" as ThemeSlug,
-
-  // Admin intro animation: "burger" (fast food) | "coffee" (café) | "pizza" (pizzeria)
+  theme: "pop-bento" as ThemeSlug,
   loaderStyle: "burger",
-
-  // Starting color theme for a first-time visitor: "light" | "dark".
-  // The header toggle always lets visitors switch and their choice is
-  // remembered - this is only the default before they pick one. Keep it
-  // "light" unless a brand is meant to open dark.
   defaultTheme: "light" as "light" | "dark",
+  menuCtaLabel: "Order online",
 
-  // Main call-to-action button label, used on every "menu" button across the
-  // site. Set it to whatever fits: "Order now", "View our menu", "See the menu"…
-  menuCtaLabel: "Order now",
-
-  // Email the agency when someone opens the PUBLIC website (pre-launch tracking).
-  // On by default; set false once a site is live so real customer traffic
-  // doesn't flood the inbox. Dashboard/preview visits are always tracked.
   trackWebsiteVisits: true,
 
-  // Loyalty / rewards program.
   loyalty: {
-    // What members sign up FOR. A lowercase noun phrase, always used mid-sentence
-    // ("You're on the list for ...", "Sign up for ..."), so keep it generic and
-    // lowercase. Flows into the /rewards signup, the welcome text/email, the
-    // popup, and the success message.
-    incentive: "member specials, event invites, and offers you won't find anywhere else",
+    incentive: "weekly specials, fresh catch updates, and family deal discounts",
   },
 
-  // Inline catering menu shown on /catering (design in CateringMenuDisplay).
-  // Edit these to change the menu - the first section renders full-width.
-  // `pdfUrl` is optional (a downloadable PDF in /public); omit to hide the button.
   catering: {
     pdfUrl: "",
-    // Catering menu entrance animation: "grill" (drifting smoke + embers) or "none".
     animation: "grill",
     menu: [
       {
-        title: "Chicken",
-        note: "Each tray comes with rolls and pickles",
+        title: "Chester Fried Chicken Platters",
+        note: "Fresh 100% Halal Amish Chicken prepared daily",
         items: [
-          { name: "Hot Chicken Tenders", qty: "25 pieces", price: 65 },
-          { name: "Hot Chicken Tenders", qty: "50 pieces", price: 120 },
-          { name: "Wings", qty: "50 pieces", price: 75 },
-          { name: "Wings", qty: "100 pieces", price: 145 },
+          { name: "Fried Chicken Tray", qty: "24 pieces", price: 34.99 },
+          { name: "Fried Chicken Tray", qty: "48 pieces", price: 64.99 },
+          { name: "Chicken Wings Tray", qty: "50 pieces", price: 59.99 },
+          { name: "Chicken Tenders Tray", qty: "30 pieces", price: 49.99 },
         ],
       },
       {
-        title: "Sides",
+        title: "Seafood & Grill Specialties",
         items: [
-          { name: "Pan Mac & Cheese", price: 60 },
-          { name: "Pan Coleslaw", price: 40 },
-          { name: "Box of Fries", price: 35 },
-          { name: "Pan Baked Beans", price: 45 },
+          { name: "Prepared Salmon Bowl Tray", price: 55.00 },
+          { name: "Fish Shawarma Tray", price: 60.00 },
+          { name: "Rotisserie Whole Chickens (4)", price: 45.00 },
         ],
       },
       {
-        title: "Extras",
+        title: "Sides & Extras",
         items: [
-          { name: "Rolls (20)", price: 10 },
-          { name: "Comeback Sauce (pint)", price: 8 },
+          { name: "Pan Fattoush Salad", price: 30.00 },
+          { name: "Pan Baba Ghanouj / Hummus", price: 28.00 },
+          { name: "Large Box of Fries", price: 20.00 },
         ],
       },
     ] as { title: string; note?: string; items: { name: string; qty?: string; price: number }[] }[],
   },
 
-  // Contact & Location
-  address: "1829 M St NW, Washington, DC 20036",
-  street: "1829 M St NW",
-  city: "Washington",
-  state: "DC",
-  zip: "20036",
-  phone: "",
-  email: "hello@burninbirddc.com",
-  cateringEmail: "catering@burninbirddc.com",
-  timezone: "America/New_York",
-  lat: 38.9054,
-  lng: -77.0426,
+  // Location details (Primary location: Dearborn Heights, MI)
+  address: "26344 Ford Rd, Dearborn Heights, MI 48127",
+  street: "26344 Ford Rd",
+  city: "Dearborn Heights",
+  state: "MI",
+  zip: "48127",
+  phone: "(313) 436-4397",
+  email: "orders@expresspoultryandfish.com",
+  cateringEmail: "catering@expresspoultryandfish.com",
+  timezone: "America/Detroit",
+  lat: 42.3248,
+  lng: -83.2965,
   googleMapsUrl:
-    "https://www.google.com/maps/search/?api=1&query=1829%20M%20St%20NW%2C%20Washington%2C%20DC%2020036",
+    "https://www.google.com/maps/search/?api=1&query=26344%20Ford%20Rd%2C%20Dearborn%20Heights%2C%20MI%2048127",
 
   // Social
-  instagram: "burninbirddc",
-  instagramUrl: "https://www.instagram.com/burninbirddc/",
-  facebookUrl: "",
+  instagram: "expresspoultryandfish",
+  instagramUrl: "https://www.instagram.com/expresspoultryandfish/",
+  facebookUrl: "https://www.facebook.com/expresspoultryandfish",
   tiktokUrl: "",
   beholdFeedId: "",
 
   // SEO
-  siteUrl: "https://burninbirddc.com",
-  seoTitle: "Burnin Bird Hot Chicken | Halal Nashville Hot Chicken in Washington, DC",
+  siteUrl: "https://express-poultry-fish.vercel.app",
+  seoTitle: "Express Poultry & Fish | 100% Halal Chicken & Seafood in Dearborn & Dearborn Heights",
   seoDescription:
-    "Burnin Bird Hot Chicken in Dupont Circle, Washington DC. Serving 100% Halal, hormone-free Nashville hot chicken sandwiches, tenders, loaded fries, and late-night eats.",
+    "Express Poultry & Fish in Dearborn Heights and Dearborn, MI. Family-owned market serving 100% Halal Amish chicken, Chester fried chicken, fish shawarma, and fresh seafood.",
   seoKeywords: [
-    "Burnin Bird Hot Chicken",
-    "Hot Chicken DC",
-    "Halal Hot Chicken Washington DC",
-    "Dupont Circle Halal Food",
-    "Nashville Hot Chicken Sandwich",
-    "Hot Honey Chicken DC",
-    "Late Night Food Dupont Circle",
-    "Halal Fast Food Washington DC",
+    "Express Poultry and Fish",
+    "Halal Chicken Dearborn",
+    "Fresh Fish Dearborn Heights",
+    "Chester Fried Chicken Dearborn",
+    "Halal Amish Chicken Michigan",
+    "Fish Shawarma Dearborn",
   ],
-  // Link previews now use the first gallery photo or the site logo (see
-  // lib/seo.ts + layout.tsx); this default is no longer the preview image.
   ogImage: "/logo.png",
 
-  // Structured-data / business info (used in JSON-LD)
-  cuisines: ["American", "Hot Chicken", "Halal", "Fast Food"],
+  cuisines: ["Seafood", "Halal", "Middle Eastern", "American"],
   priceRange: "$$",
+  primaryDish: "Halal Poultry & Seafood",
 
-  // Primary cuisine/dish for SEO (Principle 1, menu-market fit). Use the BROAD,
-  // most-searched term first, specialty framing second — "Hot Chicken" before
-  // "Nashville Hot Halal Tenders", "Mexican Food" before "Oaxacan Cuisine". Feeds
-  // the home title fallback, keywords, and (in themed heroes) an SEO eyebrow.
-  primaryDish: "Hot Chicken",
+  primaryColor: "#0284c7", // Deep Ocean Blue (from logo)
+  secondaryColor: "#ea580c", // Crisp Orange Accent (from logo)
+  accentColor: "#0369a1",
 
-  // Colors (Tailwind hex values - inspired by fiery orange & deep charcoal logo)
-  primaryColor: "#f97316",
-  secondaryColor: "#111827",
-  accentColor: "#ef4444",
-  // Outreach conversion layer (trial popup + read-only dashboard preview).
-  // Turn `enabled` off once a lead converts / the site goes live. `trialLengthDays`
-  // is for MY internal follow-up tracking only - it is never shown to the lead as
-  // a countdown or deadline. `savings` drives the estimated-savings math (default
-  // formula, override per client with real numbers when known).
   outreach: {
     enabled: true,
-    // Prices are NOT set here - they come from the single product-ladder source
-    // (src/lib/packages.ts, via getOutreach defaults): Pro anchor → Standard offer.
     discountReason: "review",
     trialLengthDays: 14,
     calendlyUrl: "https://calendly.com/popdeveloper54/10-minute-meet",
-    signalKey: "burnin-bird",
-    savings: { estimatedOrdersPerDay: 20, avgOrderValue: 25, commissionPct: 20 },
+    signalKey: "express-poultry",
+    savings: { estimatedOrdersPerDay: 25, avgOrderValue: 22, commissionPct: 20 },
   },
 
-  // Hours (used for open/closed status) - hour values are 24h local time
-  // Open Daily 11 AM - 11 PM / Late Night
+  // Hours: Mon-Sat 10 AM - 7:30 PM, Sun 10 AM - 7 PM
   hours: [
-    { day: "Sunday", open: 11, close: 23 },
-    { day: "Monday", open: 11, close: 23 },
-    { day: "Tuesday", open: 11, close: 23 },
-    { day: "Wednesday", open: 11, close: 23 },
-    { day: "Thursday", open: 11, close: 23 },
-    { day: "Friday", open: 11, close: 24 },
-    { day: "Saturday", open: 11, close: 24 },
+    { day: "Sunday", open: 10, close: 19 },
+    { day: "Monday", open: 10, close: 19.5 },
+    { day: "Tuesday", open: 10, close: 19.5 },
+    { day: "Wednesday", open: 10, close: 19.5 },
+    { day: "Thursday", open: 10, close: 19.5 },
+    { day: "Friday", open: 10, close: 19.5 },
+    { day: "Saturday", open: 10, close: 19.5 },
   ] as { day: string; open: number | null; close: number | null }[],
 
-  // Home page text sections
   home: {
-    heroHeadline: "DC's Premier Halal Hot Chicken",
-    heroSubHeadline: "100% Halal, hormone-free chicken fried crisp with custom heat levels",
+    heroHeadline: "Dearborn's Premier Halal Poultry & Seafood",
+    heroSubHeadline: "100% Halal Amish chicken, Chester fried chicken, and fresh daily catches",
     heroSlides: [
       {
         image: "/general/generalPages/mainImage.jpg",
-        headline: "DC's Premier Halal Hot Chicken",
-        subheadline: "100% halal, fried crisp, your heat level.",
-        ctaLabel: "Order now",
+        headline: "Dearborn's Premier Halal Poultry & Seafood",
+        subheadline: "100% Halal Amish chicken & fresh catches daily.",
+        ctaLabel: "Order online",
         ctaHref: "/Menu",
       },
       {
         image: "/general/generalPages/enjoy.jpg",
-        headline: "Now Booking Catering",
-        subheadline: "Feeding a crowd? We've got you covered.",
+        headline: "Party Trays & Catering",
+        subheadline: "Feeding a group? Pre-order fried chicken & seafood trays.",
         ctaLabel: "See Catering",
         ctaHref: "/catering",
       },
-      {
-        image: "/general/generalPages/vibe.jpg",
-        headline: "Earn Every Time You Order",
-        subheadline: "Join the rewards club and rack up perks.",
-        ctaLabel: "Join Rewards",
-        ctaHref: "/rewards",
-      },
     ] as { image: string; headline: string; subheadline: string; ctaLabel: string; ctaHref: string }[],
-    galleryTitle: "Burnin Bird Hot Chicken",
-    gallerySubtitle: "1829 M St NW (Dupont Circle), Washington, DC",
+    galleryTitle: "Express Poultry & Fish",
+    gallerySubtitle: "Dearborn (W Warren Ave) & Dearborn Heights (Ford Rd)",
     distinctiveFeatures: [
       {
-        title: "100% Halal & Hormone Free Chicken",
+        title: "100% Halal Amish Chicken & Fresh Poultry",
         description:
-          "We take pride in serving high-quality, hormone-free chicken tenders and breasts, prepared fresh daily and fried to crispy perfection.",
+          "High-quality Halal Amish chicken cut fresh daily, including our famous Chester Fried Chicken and rotisserie options.",
         image: "/general/generalPages/enjoy.jpg",
       },
       {
-        title: "Custom Heat Levels & Signature Sauces",
+        title: "Fresh Seafood & House Specialties",
         description:
-          "Choose your spice level from No Heat to Burnin, served with our house sauces, whipped honey butter, hot honey, or signature coleslaw.",
+          "From whole fresh fish cleaned to order to signature prepared salmon bowls and fish shawarma.",
         image: "/general/generalPages/vibe.jpg",
       },
     ],
     featuring: [
       { name: "Takeaway", icon: "PiPackageFill" },
       { name: "100% Halal", icon: "MdOutlineVerified" },
-      { name: "Catering", icon: "BsBagCheckFill" },
-      { name: "Late Night", icon: "IoMoonOutline" },
+      { name: "Catering Trays", icon: "BsBagCheckFill" },
+      { name: "2 Locations", icon: "IoLocationOutline" },
     ],
     faq: [
       {
-        question: "Where is Burnin Bird Hot Chicken located?",
+        question: "Where are Express Poultry & Fish located?",
         answer:
-          "We are located at 1829 M St NW in Dupont Circle, Washington, DC 20036.",
+          "We have two locations: 26344 Ford Rd in Dearborn Heights and 15038 W Warren Ave in Dearborn, MI.",
       },
       {
-        question: "Is your menu 100% Halal?",
-        answer:
-          "Yes! All of our chicken is 100% Halal and hormone-free.",
-      },
-      {
-        question: "What are your signature menu items?",
-        answer:
-          "Our fan favorites include the Classic Nashville Sandwich, Hot Honey Sandwich, Honey Butter Sandwich, Tenders Combo, and Fry Bowls.",
-      },
-      {
-        question: "What heat levels do you offer?",
-        answer:
-          "We offer 5 spice levels: No Heat, Mild, Medium, Hot, and Burnin.",
-      },
-      {
-        question: "What are your hours?",
-        answer:
-          "We are open daily from 11:00 AM until late night.",
+        question: "Is all your meat 100% Halal?",
+        answer: "Yes! All of our poultry and meat products are strictly 100% Halal.",
       },
     ],
   },
 
-  // Which optional sections are enabled (see FEATURES above)
   features: FEATURES,
-
-  // Product tier - gates site + admin sections (see PACKAGE_TIER above).
   packageTier: PACKAGE_TIER,
-
-  // Navbar links (derived from FEATURES + tier)
   navLinks: ALL_NAV_LINKS.filter(enabled).map(pickLink),
 
-  // Footer
   footer: {
     get copyright() {
-      return `© ${new Date().getFullYear()} Burnin Bird Hot Chicken. All rights reserved.`;
+      return `© ${new Date().getFullYear()} Express Poultry & Fish. All rights reserved.`;
     },
     links: ALL_FOOTER_LINKS.filter(enabled).map(pickLink),
   },
