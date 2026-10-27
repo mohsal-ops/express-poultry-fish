@@ -1,0 +1,357 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import {
+  LayoutDashboard,
+  UtensilsCrossed,
+  Tag,
+  ShoppingBag,
+  BookOpen,
+  MapPin,
+  Newspaper,
+  ChartArea,
+  ShieldCheck,
+  UserCircle,
+  Images,
+  Star,
+  Menu,
+  X,
+  Clock,
+  Mail,
+  Image as ImageIcon,
+  Globe,
+  Palette,
+  ExternalLink,
+  FileText,
+  Truck,
+  Gift,
+  CreditCard,
+  Smartphone,
+  Plug,
+  Activity,
+  type LucideIcon,
+} from "lucide-react";
+import { SITE_CONFIG } from "@/lib/siteConfig";
+import { atLeast, tierOf, type PackageTier } from "@/lib/packages";
+
+// ── "New" badges in the sidebar ───────────────────────────────────────────
+// Shows a small "New" pill next to recently-added tabs so the owner notices
+// them. TO REMOVE ALL BADGES: set SHOW_NEW_BADGES to false.
+// TO CHANGE WHICH TABS are flagged: edit the NEW_TAB_HREFS list.
+const SHOW_NEW_BADGES = false;
+const NEW_TAB_HREFS = new Set([
+  "/admin/catering",
+  "/admin/hours",
+  "/admin/story",
+  "/admin/media",
+  "/admin/reviews",
+  "/admin/branding",
+  "/admin/team",
+  "/admin/profile",
+]);
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  badgeKey?: "catering";
+  // Lowest tier that gets this admin section. Omitted = all tiers (Starter+).
+  // Loyalty has no minTier: it's an independent paid add-on available on every
+  // tier, not a tier feature.
+  minTier?: PackageTier;
+};
+
+type NavGroup = { label: string; items: NavItem[] };
+
+// Grouped the way an owner actually thinks about the business: the daily
+// overview first, then day-to-day operations, then the menu, then the public
+// website content, and finally the rarely-touched settings.
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/analytics", label: "Analytics", icon: ChartArea, minTier: "PRO" },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { href: "/admin/orders", label: "Sales", icon: ShoppingBag },
+      { href: "/admin/catering", label: "Catering", icon: Mail, badgeKey: "catering", minTier: "STANDARD" },
+      { href: "/admin/hours", label: "Hours", icon: Clock },
+    ],
+  },
+  {
+    label: "Menu",
+    items: [
+      { href: "/admin/menuItems", label: "Menu Items", icon: UtensilsCrossed },
+      { href: "/admin/menuCategories", label: "Categories", icon: Tag },
+    ],
+  },
+  {
+    label: "Website",
+    items: [
+      { href: "/admin/story", label: "Our Story", icon: Newspaper, minTier: "STANDARD" },
+      { href: "/admin/Blog", label: "Blog", icon: BookOpen, minTier: "STANDARD" },
+      { href: "/admin/content", label: "Content", icon: FileText, minTier: "STANDARD" },
+      { href: "/admin/media", label: "Media", icon: Images, minTier: "STANDARD" },
+      { href: "/admin/reviews", label: "Reviews", icon: Star, minTier: "STANDARD" },
+    ],
+  },
+  {
+    label: "Settings",
+    items: [
+      { href: "/admin/payments", label: "Payments", icon: CreditCard },
+      { href: "/admin/branding", label: "Branding", icon: Palette, minTier: "STANDARD" },
+      { href: "/admin/delivery", label: "Delivery", icon: Truck, minTier: "STANDARD" },
+      { href: "/admin/loyalty", label: "Loyalty", icon: Gift },
+      { href: "/admin/app", label: "App & alerts", icon: Smartphone },
+      { href: "/admin/pos", label: "POS", icon: Plug },
+      { href: "/admin/health", label: "Site health", icon: Activity },
+      { href: "/admin/places", label: "Places", icon: MapPin, minTier: "PRO" },
+      { href: "/admin/team", label: "Team", icon: ShieldCheck, minTier: "PRO" },
+    ],
+  },
+];
+
+// Hide sections above the client's tier, then drop any group left empty.
+// tierOf() defaults a tier-less (pre-tiers) siteConfig to PRO - never strips a live site.
+const SITE_TIER = tierOf(SITE_CONFIG);
+const VISIBLE_NAV_GROUPS: NavGroup[] = NAV_GROUPS.map((g) => ({
+  ...g,
+  items: g.items.filter((it) => !it.minTier || atLeast(SITE_TIER, it.minTier)),
+})).filter((g) => g.items.length > 0);
+
+function isItemActive(href: string, pathname: string) {
+  return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+}
+
+function NavItemLink({
+  item,
+  pathname,
+  badge,
+  onNavigate,
+}: {
+  item: NavItem;
+  pathname: string;
+  badge?: number;
+  onNavigate?: () => void;
+}) {
+  const active = isItemActive(item.href, pathname);
+  const Icon = item.icon;
+  const showBadge = !!badge && badge > 0;
+  const showNew = SHOW_NEW_BADGES && NEW_TAB_HREFS.has(item.href);
+
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        // POS home-screen tile: large, rounded, tactile, 56px tall.
+        "group relative flex min-h-14 items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-semibold transition-all duration-150 active:scale-[0.98]",
+        active
+          ? "bg-brand text-white shadow-lg"
+          : "text-stone-200 hover:bg-stone-800"
+      )}
+    >
+      {/* Icon chip */}
+      <span
+        className={cn(
+          "flex size-10 shrink-0 items-center justify-center rounded-lg transition-colors",
+          active ? "bg-white/20 text-white" : "bg-stone-800 text-stone-300 group-hover:bg-stone-700 group-hover:text-white"
+        )}
+      >
+        <Icon size={20} />
+      </span>
+      <span className="flex flex-1 items-center gap-1.5 truncate">
+        <span className="truncate">{item.label}</span>
+        {showNew && (
+          <span className="rounded-full bg-emerald-500 px-1.5 py-px text-[9px] font-bold uppercase leading-none tracking-wide text-white">
+            New
+          </span>
+        )}
+      </span>
+      {showBadge && (
+        <span
+          className={cn(
+            "flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs font-bold",
+            active ? "bg-white text-brand" : "bg-amber-500 text-white"
+          )}
+        >
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+function Brand({ compact = false, logoUrl }: { compact?: boolean; logoUrl?: string }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-stone-800">
+        <Image
+          src={logoUrl || "/general/logo/logo.png"}
+          alt={`${SITE_CONFIG.name} logo`}
+          width={32}
+          height={32}
+          className="h-full w-full object-cover"
+        />
+      </div>
+      {!compact && (
+        <div className="leading-tight">
+          <p className="text-sm font-semibold text-white">{SITE_CONFIG.name}</p>
+          <p className="text-[11px] text-stone-500">Admin panel</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SidebarBody({
+  pathname,
+  newCateringCount,
+  onNavigate,
+}: {
+  pathname: string;
+  newCateringCount: number;
+  onNavigate?: () => void;
+}) {
+  const isProfileActive = pathname.startsWith("/admin/profile");
+
+  return (
+    <>
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
+        {VISIBLE_NAV_GROUPS.map((group) => (
+          <div key={group.label}>
+            <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-wider text-stone-500">
+              {group.label}
+            </p>
+            <div className="space-y-1.5">
+              {group.items.map((item) => (
+                <NavItemLink
+                  key={item.href}
+                  item={item}
+                  pathname={pathname}
+                  badge={item.badgeKey === "catering" ? newCateringCount : undefined}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      <div className="space-y-1 border-t border-stone-800 p-3">
+        <a
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex min-h-14 items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-semibold text-stone-200 transition-all duration-150 hover:bg-stone-800 active:scale-[0.98]"
+        >
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-stone-800 text-stone-300 group-hover:bg-stone-700 group-hover:text-white">
+            <Globe size={20} />
+          </span>
+          <span className="flex-1">View live site</span>
+          <ExternalLink size={14} className="text-stone-500 group-hover:text-white" />
+        </a>
+        <Link
+          href="/admin/profile"
+          onClick={onNavigate}
+          aria-current={isProfileActive ? "page" : undefined}
+          className={cn(
+            "group flex min-h-14 items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-semibold transition-all duration-150 active:scale-[0.98]",
+            isProfileActive ? "bg-brand text-white shadow-lg" : "text-stone-200 hover:bg-stone-800"
+          )}
+        >
+          <span
+            className={cn(
+              "flex size-10 shrink-0 items-center justify-center rounded-lg",
+              isProfileActive ? "bg-white/20 text-white" : "bg-stone-800 text-stone-300 group-hover:bg-stone-700 group-hover:text-white"
+            )}
+          >
+            <UserCircle size={20} />
+          </span>
+          <span className="flex flex-1 items-center gap-1.5">
+            <span>My account</span>
+          </span>
+        </Link>
+      </div>
+    </>
+  );
+}
+
+export function AdminNav({
+  newCateringCount = 0,
+  logoUrl,
+}: {
+  newCateringCount?: number;
+  logoUrl?: string;
+}) {
+  const pathname = usePathname();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="sticky top-0 hidden h-screen w-72 shrink-0 flex-col border-r border-stone-800 bg-stone-900 text-white md:flex">
+        <div className="flex h-16 items-center border-b border-stone-800 px-5">
+          <Brand logoUrl={logoUrl} />
+        </div>
+        <SidebarBody pathname={pathname} newCateringCount={newCateringCount} />
+      </aside>
+
+      {/* Mobile top bar - sticky (in flow) so it sits below the preview banner
+          instead of overlapping it; sticks to the top on scroll. */}
+      <div className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-stone-800 bg-stone-900 px-3 text-white md:hidden">
+        <button
+          aria-label="Open menu"
+          onClick={() => setMobileOpen(true)}
+          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-stone-200 hover:bg-stone-800"
+        >
+          <Menu size={20} />
+          {newCateringCount > 0 && (
+            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-orange-500" />
+          )}
+        </button>
+        <Brand compact logoUrl={logoUrl} />
+        <Link
+          href="/admin/profile"
+          aria-label="Your profile"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-stone-300"
+        >
+          <UserCircle size={18} />
+        </Link>
+      </div>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+          <div className="absolute left-0 top-0 flex h-full w-72 max-w-[82vw] flex-col bg-stone-900 text-white shadow-xl">
+            <div className="flex h-16 items-center justify-between border-b border-stone-800 px-5">
+              <Brand logoUrl={logoUrl} />
+              <button
+                aria-label="Close menu"
+                onClick={() => setMobileOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-800 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <SidebarBody
+              pathname={pathname}
+              newCateringCount={newCateringCount}
+              onNavigate={() => setMobileOpen(false)}
+            />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

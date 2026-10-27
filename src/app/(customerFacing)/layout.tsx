@@ -1,0 +1,117 @@
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { TopNavBar } from "./_components/navBar";
+import { SmashNav } from "./_components/themes/SmashNav";
+import { DinerNav } from "./_components/themes/DinerNav";
+import { ElegantNav } from "./_components/themes/ElegantNav";
+import { PopNav } from "./_components/themes/PopNav";
+import { getActiveTheme } from "@/lib/themes/active";
+import { Footer } from "./_components/Footer";
+import { Toaster } from "sonner";
+import Link from "next/link";
+import { SITE_CONFIG } from "@/lib/siteConfig";
+import VisitAlert from "./_components/VisitAlert";
+import { getLogoUrl } from "@/lib/siteSettings";
+import { getLoyaltySettings, loyaltyIncentive } from "@/lib/loyalty";
+import LoadingScreen from "@/components/LoadingScreen";
+import TrialPopup from "./_components/TrialPopup";
+import DashboardBubble from "./_components/DashboardBubble";
+import LoyaltyPopup from "@/components/LoyaltyPopup";
+import PwaBoot from "@/components/pwa/PwaBoot";
+import { getIconVersion } from "@/lib/pwa/iconUrl";
+import { isEnabled } from "@/lib/flags";
+import AppModeBoot from "@/components/app-mode/AppModeBoot";
+import AppShell from "@/components/app-mode/AppShell";
+
+// Public pages are cached and rebuilt at most every 5 min (owner edits also
+// revalidate instantly) — rendering on every visit blew the free CPU limit.
+export const revalidate = 300;
+
+export default async function Customerlayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  // No per-visitor cookies here: the public site is statically cached (ISR) and
+  // the navbars resolve the cart id in the browser (useNavCart / /api/getcartId).
+  const cartId = null;
+  const logoUrl = await getLogoUrl();
+  const loyalty = await getLoyaltySettings();
+  const theme = await getActiveTheme();
+  const pwaOn = await isEnabled("pwa");
+
+  return (
+    <SidebarProvider>
+      {/* One-time branded intro on the public site (once per browser session) */}
+      <LoadingScreen />
+      {/* Website visit alert (emails the agency when someone opens the public
+          site). On by default; a client can turn it off by setting
+          SITE_CONFIG.trackWebsiteVisits = false (e.g. once they're live and it
+          would just be customer noise). Dashboard/preview visits are tracked
+          separately in admin/layout.tsx. */}
+      {(SITE_CONFIG as { trackWebsiteVisits?: boolean }).trackWebsiteVisits !== false && <VisitAlert source="site" />}
+      {/* The app uses the builder logo every site has (public/logo.png), not the dashboard one. */}
+      {pwaOn && <AppModeBoot name={SITE_CONFIG.name} logoUrl="/logo.png" />}
+      {pwaOn && <PwaBoot name={SITE_CONFIG.name} iconV={await getIconVersion()} />}
+      {pwaOn && <AppShell logoUrl="/logo.png" />}
+      <TrialPopup />
+      <DashboardBubble />
+      <LoyaltyPopup
+        loyaltyEnabled={loyalty.enabled}
+        popupEnabled={loyalty.popupEnabled}
+        consentText={loyalty.consentText}
+        incentive={loyaltyIncentive()}
+        name={SITE_CONFIG.name}
+      />
+      {/* `theme-surface` scopes every per-theme signature treatment
+          (theme-components.css) to the PUBLIC site only — the admin dashboard
+          has its own layout without this class, so it never picks them up. */}
+      <main className="theme-surface flex relative flex-col w-full  pb- ">
+        <div className="sv-web-nav fixed top-0 left-0 right-0 z-50">
+          {theme === "smash-bold" ? (
+            <SmashNav initialCartId={cartId} logoUrl={logoUrl} />
+          ) : theme === "diner-classic" ? (
+            <DinerNav initialCartId={cartId} logoUrl={logoUrl} />
+          ) : theme === "refined-elegant" ? (
+            <ElegantNav initialCartId={cartId} />
+          ) : theme === "pop-bento" ? (
+            <PopNav initialCartId={cartId} logoUrl={logoUrl} />
+          ) : (
+            <TopNavBar initialCartId={cartId} logoUrl={logoUrl} />
+          )}
+        </div>
+        <div id="main-content" className="flex flex-col md:items-center   ">{children}</div>
+        <div className="sv-web-footer flex flex-col w-full items-center ">
+          <Footer logoUrl={logoUrl} />
+          <div className="relative text-xs  mt-2 text-muted-foreground text-center p-4 md:py-3 bg-muted w-full border-t border-border">
+            {SITE_CONFIG.footer.copyright}
+            {" "}Website by{" "}
+            <a
+              href="https://www.instagram.com/starvega.digital/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-primary"
+            >
+              Starvega Digital
+            </a>{" "}
+            - Ben S.
+            {/* <Link
+            href="/login"
+            className="absolute right-1 text-xs text-stone-400 hover:text-stone-600"
+          >
+            Admin
+          </Link> */}
+          </div>
+          
+        </div>
+      </main>
+      <Toaster
+        position="top-center"
+        theme="system"
+        expand
+        richColors
+        closeButton
+        duration={4000}
+      />
+    </SidebarProvider>
+  );
+}

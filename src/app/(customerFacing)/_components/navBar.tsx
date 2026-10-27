@@ -1,0 +1,136 @@
+"use client";
+import { useNavCart } from "./themes/useNavCart";
+import Image from "next/image";
+import Link from "next/link";
+import Logo from "@/../public/general/logo/logo.png";
+import AppSideBar from "./sideBar";
+import CartSideBar from "./Cart-SideBar";
+import { shouldShowCart } from "./themes/useNavCart";
+import { Button } from "@/components/ui/button";
+import { usePathname } from "next/navigation";
+import { CartItem } from "generated/prisma";
+import { Gamepad2 } from "lucide-react";
+import { SITE_CONFIG } from "@/lib/siteConfig";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import AccountButton from "@/components/AccountButton";
+
+export function SideBar({
+  pathname,
+  logoUrl,
+}: {
+  pathname: string;
+  logoUrl?: string;
+}) {
+  return (
+    <div className="flex w-full  justify-between h-20 items-center ">
+      <div className="flex items-center justify-center pl-7">
+        <Link href="/">
+          <Image
+            alt={`${SITE_CONFIG.name} logo`}
+            priority
+            className={`h-12 w-12 ${logoUrl ? "rounded-full object-cover" : "object-contain"}`}
+            src={logoUrl || Logo}
+            height={50}
+            width={50}
+          />
+        </Link>
+      </div>
+
+      <div className="flex items-center gap-3 pr-7">
+        {pathname !== "/Menu" && (
+          <Button
+            asChild
+            size="md"
+            variant="outline"
+            className="text-md border-border"
+          >
+            <Link href="/Menu">Menu</Link>
+          </Button>
+        )}
+        <ThemeToggle />
+        <div className="flex w-7 justify-center items-center">
+          <AppSideBar />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+export function TopNavBar({
+  initialCartId,
+  logoUrl,
+}: {
+  initialCartId: string | null;
+  logoUrl?: string;
+}) {
+  // console.log("🔁 TopNavBar rendered");
+
+  const pathname = usePathname();
+  const { cartId, cartItems } = useNavCart(initialCartId);
+  const links = SITE_CONFIG.navLinks;
+
+  return (
+    <div className="bg-background border-b border-border flex justify-center ">
+      <div className="flex w-full md:hidden">
+        <SideBar pathname={pathname} logoUrl={logoUrl} />
+        {cartItems.length > 0 && (
+          <div className="fixed bottom-1 right-2 left-2 rounded-md flex justify-center z-50">
+            <CartSideBar cartId={cartId} cartItems={cartItems} />
+          </div>
+        )}
+      </div>
+
+      <div className="hidden md:flex justify-between h-16 md:h-20 md:w-[80%]  items-center ">
+        <div className="flex items-center justify-center w-auto ">
+          <Link href="/" aria-label={`${SITE_CONFIG.name} home`}>
+            <Image
+              alt={`${SITE_CONFIG.name} logo`}
+              className={`h-14 w-14 ${logoUrl ? "rounded-full object-cover" : "object-contain"}`}
+              src={logoUrl || Logo}
+              height={60}
+              width={60}
+            />
+          </Link>
+        </div>
+        <div className="flex justify-end gap-4 items-center">
+          <div className="flex overflow-auto gap-2 justify-center w-full py-1">
+            {links.map((obj, key) => {
+              const isActive = obj.href === pathname;
+
+              return (
+                <Link key={key} href={obj.href}>
+                  <Button
+                    className={[
+                      "text-md rounded-md  font-medium transition-colors duration-150 flex items-center gap-2",
+                      isActive
+                        ? "bg-accent text-accent-foreground" // active
+                        : "text-foreground/70 hover:bg-accent hover:text-accent-foreground", // inactive
+                    ].join(" ")}
+                  >
+                    {obj.label === "Kids Zone" && (
+                      <Gamepad2 strokeWidth={1.5} className="w-4 h-4" />
+                    )}
+                    {obj.label}
+                  </Button>
+                </Link>
+              );
+            })}
+          </div>
+          <Link href="/Menu">
+          <Button size="lg" variant="mainButton">
+            {SITE_CONFIG.menuCtaLabel}
+          </Button>
+        </Link>
+          <AccountButton />
+          <ThemeToggle />
+          {shouldShowCart(pathname, cartItems.length) && (
+            <div>
+              <CartSideBar cartId={cartId} cartItems={cartItems} />
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,145 @@
+"use server";
+import { removeStoredFile, storeFile } from "@/lib/storage";
+import { assertWritable } from "@/lib/previewGuard";
+
+import db from "@/db/db";
+import { revalidatePath } from "next/cache";
+
+// Same dev-fs / prod-Vercel-Blob pattern as the other image actions.
+async function saveImage(file: File): Promise<string> {
+  const isDev = process.env.NODE_ENV === "development";
+  if (isDev) {
+    const fs = await import("node:fs/promises");
+    await fs.mkdir("public/site-images", { recursive: true });
+    const path = `/site-images/${crypto.randomUUID()}-${file.name}`;
+    await fs.writeFile(`public${path}`, new Uint8Array(await file.arrayBuffer()));
+    return path;
+  } else {
+    return storeFile("site-images", file); // R2 (or Blob fallback) — lib/storage.ts
+  }
+}
+
+export async function updateThemeColor(color: string) {
+  await assertWritable();
+  if (!/^#[0-9a-fA-F]{3,8}$/.test(color)) {
+    return { error: "Please choose a valid color." };
+  }
+  try {
+    await db.siteSetting.upsert({
+      where: { key: "theme_color" },
+      update: { value: color },
+      create: { key: "theme_color", value: color },
+    });
+    // revalidate the whole layout so the new color reaches every page
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (error) {
+    console.error("updateThemeColor error:", error);
+    return { error: "Couldn't save the color. Try again." };
+  }
+}
+
+export async function updateLogo(formData: FormData) {
+  await assertWritable();
+  const file = formData.get("logo") as File;
+  if (!file || file.size === 0) return { error: "No file provided" };
+  if (!file.type.startsWith("image/")) return { error: "Invalid image file" };
+  try {
+    const url = await saveImage(file);
+    await db.siteSetting.upsert({
+      where: { key: "logo_url" },
+      update: { value: url },
+      create: { key: "logo_url", value: url },
+    });
+    revalidatePath("/", "layout");
+    return { ok: true, url };
+  } catch (error) {
+    console.error("updateLogo error:", error);
+    return {
+      error:
+        `Couldn't save the logo: ${(error as Error)?.message || "storage error"}. Try again in a minute.`,
+    };
+  }
+}
+
+export async function removeLogo() {
+  await assertWritable();
+  try {
+    const existing = await db.siteSetting.findUnique({ where: { key: "logo_url" } });
+    // Best-effort: delete the stored blob so it doesn't linger.
+    if (existing?.value?.startsWith("https://")) {
+      try {
+        await removeStoredFile(existing.value);
+      } catch {
+        /* ignore - clearing the setting is what matters */
+      }
+    }
+    await db.siteSetting.upsert({
+      where: { key: "logo_url" },
+      update: { value: "" },
+      create: { key: "logo_url", value: "" },
+    });
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (error) {
+    console.error("removeLogo error:", error);
+    return { error: "Couldn't remove the logo. Try again." };
+  }
+}
+
+export async function updateHomeText(headline: string, subheadline: string) {
+  await assertWritable();
+  try {
+    await Promise.all([
+      db.siteSetting.upsert({
+        where: { key: "home_headline" },
+        update: { value: headline },
+        create: { key: "home_headline", value: headline },
+      }),
+      db.siteSetting.upsert({
+        where: { key: "home_subheadline" },
+        update: { value: subheadline },
+        create: { key: "home_subheadline", value: subheadline },
+      }),
+    ]);
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (error) {
+    console.error("updateHomeText error:", error);
+    return { error: "Couldn't save the text. Try again." };
+  }
+}
+
+// Save the owner's colours for ONE design (other designs keep theirs). An empty
+// object resets that design to its built-in palette.
+export async function updateThemePalette(slug: string, colors: Record<string, string>) {
+  await assertWritable();
+  const { isThemeSlug } = await import("@/lib/themes/registry");
+  const { THEME_PALETTES, isHex6 } = await import("@/lib/themes/palette");
+  if (!isThemeSlug(slug) || !THEME_PALETTES[slug]) return { error: "This design has no editable colours." };
+  const clean: Record<string, string> = {};
+  for (const s of THEME_PALETTES[slug]!) {
+    const v = colors[s.role];
+    if (v === undefined || v === "") continue; // "" = automatic text colour
+    if (!isHex6(v)) return { error: `“${s.label}” needs a 6-digit hex colour like #FCB931.` };
+    clean[s.role] = v;
+  }
+  try {
+    const row = await db.siteSetting.findUnique({ where: { key: "theme_palette" } });
+    let all: Record<string, unknown> = {};
+    try {
+      all = JSON.parse(row?.value || "{}") ?? {};
+    } catch {
+      all = {};
+    }
+    if (Object.keys(clean).length) all[slug] = clean;
+    else delete all[slug];
+    const value = JSON.stringify(all);
+    await db.siteSetting.upsert({ where: { key: "theme_palette" }, update: { value }, create: { key: "theme_palette", value } });
+    revalidatePath("/", "layout");
+    return { ok: true };
+  } catch (error) {
+    console.error("updateThemePalette error:", error);
+    return { error: "Couldn't save the colours. Try again." };
+  }
+}

@@ -1,0 +1,517 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/app/providers/CartProvider";
+import HereAutocomplete from "@/lib/HereAutocomplete";
+import { getAvailableTimeSlots } from "@/lib/hours";
+import { loadCustomer, saveCustomer } from "@/lib/customerMemory";
+
+/**
+ * The order-details/schedule UI, extracted from its Dialog wrapper so it can be
+ * embedded inline inside another Dialog (SchedulePickupDialog) without nesting
+ * two Radix Dialog roots at once (which caused focus/accessibility bugs).
+ * `PickupDetails` below wraps this in its own Dialog for standalone use.
+ */
+const formatFee = (cents: number) => `${(cents / 100).toFixed(2)}`;
+
+export function PickupDetailsContent({
+  orderType,
+  onComplete,
+}: {
+  orderType: "delivery" | "pickup" | null;
+  onComplete: () => void;
+}) {
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [showpickupDetails, setshowpickupDetails] = useState(false);
+
+  useEffect(() => {
+    setshowpickupDetails(orderType === "pickup");
+  }, [orderType]);
+  const [selectedPlace, setSelectedPlace] = useState<{
+    address: string;
+    lat: number;
+    lng: number;
+    placeId: string;
+  } | null>(null);
+  const [apt, setApt] = useState("");
+  const [instructions, setInstructions] = useState("");
+
+  // 🟢 selectedDay is now a Date or null
+  const [selectedDay, setSelectedDay] = useState<Date | null>(null);
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [customerName, setCustomerName] = useState<string | undefined>("");
+  const [customerPhone, setCustomerPhone] = useState<string | undefined>("");
+  const [isLoading, setIsLoading] = useState(false);
+  // Result of the real Uber Direct quote for the chosen address. null = not
+  // checked yet; {available:false} keeps the customer on this step.
+  const [deliveryQuote, setDeliveryQuote] = useState<
+    { available: boolean; feeCents?: number; etaMin?: number; reason?: string } | null
+  >(null);
+  const [showMoreDays, setShowMoreDays] = useState(false);
+  // Gate the save-on-change effect until the mount hydrate has run, so we never
+  // overwrite stored details with the initial empty state.
+  const [hydrated, setHydrated] = useState(false);
+  const { cartId, mutate } = useCart();
+  const router = useRouter();
+
+  // Pre-fill from what this browser remembered, so a returning customer - OR one
+  // starting a second order in the same session right after a first - doesn't
+  // retype anything. Runs on EVERY mount (this dialog remounts per order); no
+  // first-visit/return-visit gate. After mount because localStorage is
+  // client-only, so there's no hydration mismatch.
+  useEffect(() => {
+    const saved = loadCustomer();
+    if (saved.name) setCustomerName(saved.name);
+    if (saved.phone) setCustomerPhone(saved.phone);
+    if (saved.apt) setApt(saved.apt);
+    if (saved.instructions) setInstructions(saved.instructions);
+    if (saved.place) setSelectedPlace(saved.place);
+    // Restore the scheduling preference, but never a stale past day.
+    if (saved.day) {
+      const d = new Date(saved.day);
+      const startToday = new Date();
+      startToday.setHours(0, 0, 0, 0);
+      if (!isNaN(d.getTime()) && d >= startToday) setSelectedDay(d);
+    }
+    if (saved.time) setSelectedTime(saved.time);
+    setHydrated(true);
+  }, []);
+
+  // Persist on every change (Phase 2): even an abandoned checkout keeps what was
+  // typed. saveCustomer merges non-empty fields, so a transient blank never wipes
+  // a good stored value.
+  useEffect(() => {
+    if (!hydrated) return;
+    saveCustomer({
+      name: customerName,
+      phone: customerPhone,
+      apt,
+      instructions,
+      place: selectedPlace ?? undefined,
+      day: selectedDay ? selectedDay.toISOString() : undefined,
+      time: selectedTime ?? undefined,
+    });
+  }, [hydrated, customerName, customerPhone, apt, instructions, selectedPlace, selectedDay, selectedTime]);
+
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const formatDay = (date: Date) =>
+    date.toLocaleDateString("en-US", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+    });
+
+  const moreDays = Array.from({ length: 8 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i + 2);
+    return d;
+  });
+
+  // Only show time slots that fall within the restaurant's open hours for the selected day,
+  // and drop a previously-picked time if it's no longer valid once the day changes.
+  const availableTimeSlots = getAvailableTimeSlots(selectedDay);
+  useEffect(() => {
+    if (selectedTime && !availableTimeSlots.includes(selectedTime)) {
+      setSelectedTime(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDay]);
+
+  const handleAddDelivery = async () => {
+    // Second click after a successful quote = "Continue": the fee is already
+    // saved on the cart, just move on.
+    if (deliveryQuote?.available) {
+      onComplete();
+      return;
+    }
+    setIsLoading(true);
+    if (!selectedPlace) {
+      toast("Please select delivery address");
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch("/api/cart/addDelivery", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          address: selectedPlace.address,
+          lat: selectedPlace.lat,
+          lng: selectedPlace.lng,
+          placeId: selectedPlace.placeId,
+          apt,
+          instructions,
+          orderType,
+          customerName,
+          customerPhone,
+        }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        message?: string;
+        delivery?: { available: boolean; feeCents?: number; etaMin?: number; reason?: string };
+      };
+      await mutate(["/api/cart/get", cartId]);
+      router.refresh();
+
+      if (!res.ok || !data.ok) {
+        toast.error(data.message || "Couldn't confirm delivery. Please try again.");
+        return;
+      }
+
+      const delivery = data.delivery;
+      if (orderType === "delivery" && delivery && !delivery.available) {
+        // No courier for this address: say so plainly and stay on this step.
+        setDeliveryQuote(delivery);
+        toast.error(delivery.reason || "Delivery isn't available for this address right now.");
+        return;
+      }
+
+      // Remember these for the customer's next order (this browser only).
+      saveCustomer({ name: customerName, phone: customerPhone, apt, instructions, place: selectedPlace ?? undefined });
+
+      if (orderType === "delivery" && delivery?.available && typeof delivery.feeCents === "number") {
+        // Show the real fee + ETA in the address card; the button becomes "Continue".
+        setDeliveryQuote(delivery);
+        toast.success(`Delivery available - ${formatFee(delivery.feeCents)} fee`);
+        return;
+      }
+
+      toast(data.message || "Delivery confirmed");
+      onComplete();
+    } catch (error) {
+      console.error(error);
+      toast.error("Couldn't confirm delivery. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddToCart = async (Day: Date | null, Time: string | null) => {
+    setIsLoading(true);
+    if (!Day || !Time) {
+      toast("Please select a day and time");
+      setIsLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch("/api/cart/addTime", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          pickupDay: Day,
+          pickupTime: Time,
+          orderType: orderType,
+        }),
+      });
+      const data = await res.json();
+      await mutate(["/api/cart/get", cartId]);
+      router.refresh();
+
+      if (res.ok) {
+        // Remember the customer's contact for their next order (this browser).
+        saveCustomer({ name: customerName, phone: customerPhone });
+        toast(`${data.message}`);
+        setShowSchedule(false);
+        onComplete();
+      } else {
+        toast(`${data.message}`);
+        throw new Error("Failed adding Time");
+      }
+    } catch (error) {
+      console.error(error);
+      toast(`${error}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isSameDay = (a: Date | null, b: Date) =>
+    !!a && a.toDateString() === b.toDateString();
+
+  return (
+    <div className="flex flex-col gap-4 justify-between">
+      <DialogHeader className="px-5 py-3 flex-none ">
+        <DialogTitle>
+          {!showSchedule ? "Order Details" : "Schedule Pickup"}
+        </DialogTitle>
+      </DialogHeader>
+
+      <div className="flex flex-col space-y-8 flex-1 px-2">
+        {orderType === "delivery" && !selectedPlace && (
+          <HereAutocomplete
+            onSelect={(place) => {
+              setSelectedPlace({
+                address: place.address.label,
+                lat: place.position.lat,
+                lng: place.position.lng,
+                placeId: place.id,
+              });
+            }}
+          />
+        )}
+
+        {orderType === "delivery" || (orderType === null && selectedPlace) ? (
+          selectedPlace && (
+            <div className="flex flex-col gap-3">
+              <div className="border p-3 rounded-xl flex justify-between items-center">
+                <div>
+                  <div className="font-medium">📍 {selectedPlace.address}</div>
+                </div>
+                <button
+                  className="text-sm text-blue-500"
+                  onClick={() => {
+                    setSelectedPlace(null);
+                    setDeliveryQuote(null);
+                  }}
+                >
+                  Change
+                </button>
+              </div>
+
+              {/* Live Uber Direct quote for this address */}
+              {orderType === "delivery" && deliveryQuote?.available && typeof deliveryQuote.feeCents === "number" && (
+                <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                  <p className="font-semibold">
+                    Delivery fee: {formatFee(deliveryQuote.feeCents)} · Uber courier
+                    {deliveryQuote.etaMin ? ` · ~${deliveryQuote.etaMin} min` : ""}
+                  </p>
+                  <p className="mt-0.5 text-xs opacity-80">This fee is added to your total at checkout.</p>
+                </div>
+              )}
+              {orderType === "delivery" && deliveryQuote && !deliveryQuote.available && (
+                <div role="alert" className="rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+                  <p className="font-semibold">Delivery isn&apos;t available here</p>
+                  <p className="mt-0.5">
+                    {deliveryQuote.reason || "We couldn't get a courier for this address."} You can try another address, or
+                    close this and switch to <span className="font-semibold">Pickup</span> at the top of the menu.
+                  </p>
+                </div>
+              )}
+
+              <input
+                placeholder="Apt / Suite / Floor"
+                value={apt}
+                onChange={(e) => setApt(e.target.value)}
+                className="border rounded-xl p-3"
+              />
+              <input
+                className="border rounded-xl p-3"
+                placeholder="Full name"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+              />
+
+              <input
+                className="border rounded-xl p-3"
+                placeholder="Phone number"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+              />
+              <textarea
+                placeholder="Delivery instructions"
+                value={instructions}
+                onChange={(e) => setInstructions(e.target.value)}
+                className="border rounded-xl p-3"
+              />
+            </div>
+          )
+        ) : null}
+
+        {(showSchedule || orderType === "pickup") && (
+          <>
+            {/* Day Selection */}
+            <div className="flex flex-col gap-2  ">
+              <div className="flex gap-2">
+                {/* Today */}
+                <Button
+                  size="lg"
+                  variant={
+                    isSameDay(selectedDay, today) ? "clicked" : "outline"
+                  }
+                  className="flex justify-between w-1/2"
+                  onClick={() => {
+                    setSelectedDay(today);
+                    setShowMoreDays(false);
+                  }}
+                >
+                  <span>{formatDay(today).split(" ")[0]}</span>
+                  <span>{formatDay(today).split(" ").slice(1).join(" ")}</span>
+                </Button>
+
+                {/* Tomorrow */}
+                <Button
+                  size="lg"
+                  variant={
+                    isSameDay(selectedDay, tomorrow) ? "clicked" : "outline"
+                  }
+                  className="flex justify-between w-1/2"
+                  onClick={() => {
+                    setSelectedDay(tomorrow);
+                    setShowMoreDays(false);
+                  }}
+                >
+                  <span>{formatDay(tomorrow).split(" ")[0]}</span>
+                  <span>
+                    {formatDay(tomorrow).split(" ").slice(1).join(" ")}
+                  </span>
+                </Button>
+              </div>
+
+              {/* More Days */}
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setShowMoreDays(!showMoreDays)}
+                className="w-full justify-between"
+              >
+                More days
+                <span>▼</span>
+              </Button>
+
+              {showMoreDays && (
+                <div className="grid grid-cols-2 gap-2 ">
+                  {moreDays.map((day, i) => (
+                    <Button
+                      size="lg"
+                      key={i}
+                      variant={
+                        isSameDay(selectedDay, day) ? "clicked" : "outline"
+                      }
+                      className="justify-between"
+                      onClick={() => setSelectedDay(day)}
+                    >
+                      <span>{formatDay(day).split(" ")[0]}</span>
+                      <span>{formatDay(day).split(" ").slice(1).join(" ")}</span>
+                    </Button>
+                  ))}
+                </div>
+              )}
+              {/* Time Slots */}
+              <div
+                className={`${showMoreDays && "h-28"} flex flex-col max-h-72 overflow-hidden `}
+              >
+                <p className="font-medium mb-2">Available times:</p>
+                <div className="w-full h-full overflow-auto scrollbar-thin scrollbar-thumb-border ">
+                  <div>
+                    {availableTimeSlots.length === 0 && (
+                      <p className="text-sm text-muted-foreground py-2">
+                        We&apos;re closed that day - please pick another date.
+                      </p>
+                    )}
+                    {availableTimeSlots.map((t) => (
+                      <div
+                        key={t}
+                        onClick={() => setSelectedTime(t)}
+                        className="flex items-center w-full py-3 px-2 space-x-4 border-b cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={selectedTime === t}
+                          onCheckedChange={() => setSelectedTime(t)}
+                        />
+                        <Label>{t}</Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 pt-3">
+                <input
+                  className="border rounded-xl p-3"
+                  placeholder="Phone number"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                />
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <DialogFooter className="flex-none p-3">
+        {showpickupDetails && (
+          <Button
+            size="md"
+            variant="mainButton"
+            className="h-6 w-full"
+            onClick={() => {
+              setshowpickupDetails(false);
+              setShowSchedule(true);
+              setSelectedDay(today); // default to today
+            }}
+          >
+            Schedule Pickup
+          </Button>
+        )}
+        {showSchedule && (
+          <Button
+            disabled={isLoading || !selectedTime}
+            size="md"
+            variant="mainButton"
+            className="w-full"
+            onClick={() => handleAddToCart(selectedDay, selectedTime)}
+          >
+            {isLoading ? "Scheduling..." : "Schedule Order"}
+          </Button>
+        )}
+        {orderType === "delivery" && selectedPlace && (
+          <Button
+            disabled={isLoading}
+            size="md"
+            variant="mainButton"
+            className="w-full"
+            onClick={handleAddDelivery}
+          >
+            {isLoading
+              ? "Checking delivery..."
+              : deliveryQuote?.available && typeof deliveryQuote.feeCents === "number"
+                ? `Continue · ${formatFee(deliveryQuote.feeCents)} delivery`
+                : "Confirm Delivery"}
+          </Button>
+        )}
+      </DialogFooter>
+    </div>
+  );
+}
+
+/* Standalone Dialog wrapper - used directly from mainPage.tsx's (currently disabled) toggle. */
+export default function PickupDetails({
+  open,
+  onOpenChange,
+  orderType,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  orderType: "delivery" | "pickup" | null;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        aria-describedby={undefined}
+        className="flex flex-col gap-4 justify-between overflow-scroll max-h-[95vh] scrollbar-thin scrollbar-track-muted "
+      >
+        <PickupDetailsContent
+          orderType={orderType}
+          onComplete={() => onOpenChange(false)}
+        />
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -1,0 +1,363 @@
+import { Suspense } from "react";
+import { buildMetadata } from "@/lib/seo";
+import {
+  GetFeaturedProducts,
+} from "./Menu/_actions/getDataNeeded";
+import GetPlaces from "./_components/getPlaces";
+import ThirdSectionClient from "./_components/ThirdSectionClient";
+import FadeIn from "@/components/FadeIn";
+import { OurLocation } from "./_components/OurLocation";
+import HomeFeaturedSkeleton from "./_skeletons/HomeFeaturedSkeleton";
+import db from "@/db/db";
+import { getBusinessHours } from "@/lib/getHours";
+import { getSiteImage } from "@/lib/getSiteImages";
+import { getLogoUrl, getSiteText } from "@/lib/siteSettings";
+import { SITE_CONFIG } from "@/lib/siteConfig";
+import {
+  TopSection,
+  SecondSection,
+  OrderDirectlyfromOUrWebsite,
+  DistinctiveFeatures,
+  Featuring,
+  Frequentlyaskedquestions,
+} from "./_components/HomeSections";
+import { ReviewsSection } from "./_components/ReviewsSection";
+import { CorePitch } from "./_components/CorePitch";
+import { getActiveTheme } from "@/lib/themes/active";
+import { SmashHome } from "./_components/themes/SmashHome";
+import { getThemeHomeContent } from "@/lib/themes/homeContent";
+import { DinerHome } from "./_components/themes/DinerHome";
+import { ElegantHome } from "./_components/themes/ElegantHome";
+import { PopHome } from "./_components/themes/PopHome";
+import {
+  Item,
+  SideGroup,
+  SideOption,
+} from "generated/prisma";
+
+export type ItemWithSides = Item & {
+  sideGroups: (SideGroup & {
+    options: SideOption[];
+  })[];
+};
+
+export async function generateMetadata() {
+  const base = buildMetadata("home");
+  // Prefer the restaurant's OWN first gallery photo for the shared home-page
+  // link preview. buildMetadata already falls back to the site logo (never the
+  // packaged template photo), so an empty gallery still shows this client's brand.
+  const first = await db.galleryImage
+    .findFirst({ orderBy: { order: "asc" }, select: { url: true } })
+    .catch(() => null);
+  if (first?.url) {
+    if (base.openGraph) base.openGraph.images = [{ url: first.url, width: 1200, height: 630 }];
+    if (base.twitter) base.twitter.images = [first.url];
+  }
+  return base;
+}
+
+function FaqSchema() {
+  // Mirrors the questions/answers rendered in Frequentlyaskedquestions below -
+  // keep these in sync if that content changes.
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: [
+            {
+              "@type": "Question",
+              name: "What are you known for?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Homemade comfort food, hand-pressed burgers, all-day breakfast, and our daily specials.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "What meals do you serve?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Breakfast (served all day), burgers, sandwiches, homemade pizza, and daily specials.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Do you offer delivery or takeout?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "Yes! We offer both pickup and delivery.",
+              },
+            },
+            {
+              "@type": "Question",
+              name: "Where are you located?",
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: "We're at 1302 W 11th St, Eagle Pass, TX 79035.",
+              },
+            },
+          ],
+        }),
+      }}
+    />
+  );
+}
+
+function SectionDivider() {
+  return (
+    <div className="w-full flex justify-center px-4">
+      <div className="h-px w-full max-w-[85vw] bg-linear-to-r from-transparent via-border to-transparent" />
+    </div>
+  );
+}
+
+async function FeaturedProductsSection() {
+  // cart items are resolved in the browser; the cached page carries none
+  const products = await GetFeaturedProducts();
+  return <SecondSection products={products} cartItems={[]} />;
+}
+
+async function LocationSection() {
+  const [placesRes, hours] = await Promise.all([GetPlaces(), getBusinessHours()]);
+  const places = placesRes?.places ?? [];
+  // Fall back to the address in siteConfig when no location row exists yet
+  // (fresh DB / not filled in the dashboard) so the map centers on the real
+  // restaurant instead of 0,0 in the ocean.
+  const lat = places[0]?.lat ?? SITE_CONFIG.lat;
+  const lng = places[0]?.lng ?? SITE_CONFIG.lng;
+
+  return <OurLocation places={places} lat={lat} lng={lng} hours={hours} />;
+}
+
+async function GallerySection() {
+  const images = await db.galleryImage.findMany({ orderBy: { order: "asc" } });
+  return <ThirdSectionClient images={images} />;
+}
+
+async function ReviewsDataSection() {
+  const reviews = await db.review.findMany({ orderBy: { order: "asc" } });
+  return <ReviewsSection reviews={reviews} />;
+}
+
+const slim = (p: { id: string; name: string; priceInCents: number; description: string | null; image: string | null }) => ({
+  id: p.id,
+  name: p.name,
+  priceInCents: p.priceInCents,
+  description: p.description,
+  image: p.image,
+});
+
+export const revalidate = 300;
+
+export default async function Home() {
+  const themeSlug = await getActiveTheme();
+  // TopSection and the static sections below render immediately; the two
+  // heavier DB-backed sections stream in behind Suspense so they aren't
+  // blocked on the featured-products and places queries. The hero image is a
+  // single indexed lookup, cheap enough to await directly here.
+  const [
+    heroImage,
+    heroImage2,
+    heroImage3,
+    orderImage,
+    featureBreakfast,
+    featureComfort,
+    homeText,
+    logoUrl,
+  ] = await Promise.all([
+    getSiteImage("home_hero"),
+    getSiteImage("home_hero_2"),
+    getSiteImage("home_hero_3"),
+    getSiteImage("home_order"),
+    getSiteImage("home_feature_1"),
+    getSiteImage("home_feature_2"),
+    getSiteText(),
+    getLogoUrl(),
+  ]);
+
+  // Bespoke per-theme homepages (their own layout + motion, modeled on the
+  // reference designs). classic-starvega and any theme without a custom home
+  // fall through to the standard section stack below, unchanged.
+  if (themeSlug === "smash-bold") {
+    const [featured, reviews, content, gallery] = await Promise.all([
+      GetFeaturedProducts(),
+      db.review.findMany({ orderBy: { order: "asc" } }),
+      getThemeHomeContent(themeSlug),
+      db.galleryImage.findMany({ orderBy: { order: "asc" }, select: { url: true, alt: true }, take: 80 }),
+    ]);
+    return (
+      <>
+        <FaqSchema />
+        <SmashHome
+          content={content}
+          gallery={gallery}
+          heroImages={[heroImage, heroImage2, heroImage3]}
+          logoUrl={logoUrl}
+          featured={featured.map((p) => ({
+            id: p.id,
+            name: p.name,
+            priceInCents: p.priceInCents,
+            description: p.description,
+            image: p.image,
+          }))}
+          reviews={reviews}
+        />
+      </>
+    );
+  }
+
+  if (themeSlug === "diner-classic") {
+    const [types, featured, reviews, content, gallery] = await Promise.all([
+      db.types.findMany({
+        orderBy: { createdAt: "asc" },
+        include: {
+          items: { where: { isAvailableForPurchase: true }, take: 5 },
+          _count: { select: { items: { where: { isAvailableForPurchase: true } } } },
+        },
+      }),
+      GetFeaturedProducts(),
+      db.review.findMany({ orderBy: { order: "asc" } }),
+      getThemeHomeContent(themeSlug),
+      db.galleryImage.findMany({ orderBy: { order: "asc" }, select: { url: true, alt: true }, take: 80 }),
+    ]);
+    return (
+      <>
+        <FaqSchema />
+        <DinerHome
+          gallery={gallery}
+          content={content}
+          heroImage={content.images.diner_hero ?? heroImage}
+          menu={types.map((t) => ({ id: t.id, name: t.name, count: t._count.items, items: t.items.map(slim) }))}
+          featured={featured.map(slim)}
+          reviews={reviews}
+        />
+      </>
+    );
+  }
+
+  if (themeSlug === "pop-bento") {
+    const [types, featured, reviews, content, gallery, hours] = await Promise.all([
+      db.types.findMany({
+        orderBy: { createdAt: "asc" },
+        include: { _count: { select: { items: { where: { isAvailableForPurchase: true } } } } },
+      }),
+      GetFeaturedProducts(),
+      db.review.findMany({ orderBy: { order: "asc" } }),
+      getThemeHomeContent(themeSlug),
+      db.galleryImage.findMany({ orderBy: { order: "asc" }, select: { url: true, alt: true }, take: 12 }),
+      getBusinessHours().catch(() => []),
+    ]);
+    return (
+      <>
+        <FaqSchema />
+        <PopHome
+          content={content}
+          heroImage={heroImage}
+          featured={featured.map(slim)}
+          menu={types.filter((t) => t._count.items > 0).map((t) => ({ id: t.id, name: t.name, count: t._count.items }))}
+          reviews={reviews}
+          gallery={gallery}
+          hours={(hours as { dayIndex: number; open: number; close: number }[]).map((h) => ({ dayIndex: h.dayIndex, open: h.open, close: h.close }))}
+        />
+      </>
+    );
+  }
+
+  if (themeSlug === "refined-elegant") {
+    const [featured, reviews, gallery, content] = await Promise.all([
+      GetFeaturedProducts(),
+      db.review.findMany({ orderBy: { order: "asc" } }),
+      db.galleryImage.findMany({ orderBy: { order: "asc" }, select: { url: true, alt: true }, take: 80 }),
+      getThemeHomeContent(themeSlug),
+    ]);
+    return (
+      <>
+        <FaqSchema />
+        <ElegantHome
+          content={content}
+          heroImages={[heroImage, heroImage2, heroImage3]}
+          gallery={gallery.slice(0, 6).map((g) => g.url)}
+          galleryItems={gallery}
+          featured={featured.map(slim)}
+          reviews={reviews}
+        />
+      </>
+    );
+  }
+
+  return (
+    <div className="flex  pt-20 flex-col gap-5 items-center justify-center    [&>*:not(:first-child)]:m-2">
+      <FaqSchema />
+      <TopSection
+        heroImage={heroImage}
+        heroImages={[heroImage, heroImage2, heroImage3]}
+        headline={homeText.headline}
+        subheadline={homeText.subheadline}
+        logoUrl={logoUrl}
+      />
+      <SectionDivider />
+      <Suspense fallback={<HomeFeaturedSkeleton />}>
+        <FeaturedProductsSection />
+      </Suspense>
+      <SectionDivider />
+      <Suspense fallback={<div className="sm:w-[85%] w-full h-100 bg-muted rounded-3xl animate-pulse" />}>
+        <GallerySection />
+      </Suspense>
+      <SectionDivider />
+      <FadeIn delay={100}>
+        <Suspense fallback={<div className="h-96 w-full md:w-[85vw] bg-muted rounded-4xl animate-pulse" />}>
+          <ReviewsDataSection />
+        </Suspense>
+      </FadeIn>
+      <SectionDivider />
+      <FadeIn delay={200}>
+        <div className="p-2 w-full flex justify-center">
+          <OrderDirectlyfromOUrWebsite image={orderImage} />
+        </div>
+      </FadeIn>
+      <SectionDivider />
+      <FadeIn delay={300}>
+        <div className="w-full flex justify-center">
+          <Featuring />
+        </div>
+      </FadeIn>
+      <SectionDivider />
+      <FadeIn delay={400}>
+        <DistinctiveFeatures
+          images={{ breakfast: featureBreakfast, comfort: featureComfort }}
+          texts={{
+            feature1Title: homeText.feature1Title,
+            feature1Desc: homeText.feature1Desc,
+            feature2Title: homeText.feature2Title,
+            feature2Desc: homeText.feature2Desc,
+          }}
+        />
+      </FadeIn>
+      <SectionDivider />
+      <FadeIn delay={500}>
+        <div className="p-4 w-full flex justify-center">
+          <Frequentlyaskedquestions />
+        </div>
+      </FadeIn>
+      {/* Core-pitch block (section 5 of the contract) — the four Starvega
+          pillars. Rendered for the themed skins only; classic-starvega keeps its
+          existing native sections, which already carry this message, so the
+          default site is unchanged. */}
+      {themeSlug !== "classic-starvega" && (
+        <>
+          <SectionDivider />
+          <div className="w-full flex justify-center">
+            <CorePitch />
+          </div>
+        </>
+      )}
+      <SectionDivider />
+      <Suspense fallback={<div className="h-40 w-full sm:w-[75%] animate-pulse bg-muted rounded-4xl" />}>
+        <LocationSection />
+      </Suspense>
+    </div>
+  );
+}

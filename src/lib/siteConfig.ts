@@ -1,0 +1,313 @@
+// Single source of truth for every brand-specific value on the site.
+// To onboard a new restaurant client, this is the only file that should
+// need to change (plus swapping image assets in /public).
+import { atLeast, type PackageTier } from "./packages";
+import type { ThemeSlug } from "./themes/registry";
+
+// Product tier this client is on. The panel patches this line per client at
+// provision time. It gates which site + admin sections show (via `minTier`
+// below and the admin nav). Defaults to PRO so the template/demo and any
+// pre-tier client that lacks this line keep the full feature set.
+const PACKAGE_TIER: PackageTier = "PRO";
+
+// Optional sections. Flip a flag to false to remove that section from the
+// navbar + footer (the new-project tool sets these per client). The route
+// still exists, it is simply not linked. Tier gating (`minTier`) is layered on
+// top: a section shows only when its flag is on AND the client's tier reaches
+// it, so FEATURES acts as a per-client on/off *within* the tier's ceiling.
+const FEATURES = {
+  catering: true,
+  giftCard: false,
+  rewards: true,
+  blog: false,
+};
+
+type FeatureKey = keyof typeof FEATURES;
+type NavLink = { label: string; href: string; feature?: FeatureKey; minTier?: PackageTier };
+
+const ALL_NAV_LINKS: NavLink[] = [
+  { label: "Home", href: "/" },
+  { label: "Menu", href: "/Menu" },
+  { label: "Catering", href: "/catering", feature: "catering", minTier: "STANDARD" },
+  { label: "Gift Card", href: "/GiftCard", feature: "giftCard", minTier: "STANDARD" },
+  { label: "Rewards", href: "/rewards", feature: "rewards", minTier: "PRO" },
+  { label: "Kids Zone", href: "/KidsZone", minTier: "PRO" },
+  { label: "Press", href: "/Blog", feature: "blog", minTier: "STANDARD" },
+  { label: "Our Story", href: "/story" },
+];
+
+const ALL_FOOTER_LINKS: NavLink[] = [
+  { label: "Menu", href: "/Menu" },
+  { label: "Catering", href: "/catering", feature: "catering", minTier: "STANDARD" },
+  { label: "Gift Cards", href: "/GiftCard", feature: "giftCard", minTier: "STANDARD" },
+  { label: "Terms", href: "/terms" },
+];
+
+// A link shows when its feature flag is on (or it has none) AND the client's
+// tier reaches its minTier (or it has none).
+const enabled = (l: NavLink) =>
+  (!l.feature || FEATURES[l.feature]) && (!l.minTier || atLeast(PACKAGE_TIER, l.minTier));
+const pickLink = ({ label, href }: NavLink) => ({ label, href });
+
+export const SITE_CONFIG = {
+  // Brand
+  name: "Burnin Bird Hot Chicken",
+  tagline: "Halal Nashville Hot Chicken | Dupont Circle",
+  subTagline:
+    "",
+  legalName: "Burnin Bird Hot Chicken LLC",
+  trademark: "Burnin Bird",
+
+  // Design skin for the public site. The panel patches this per client at
+  // provision time; it controls fonts/colors/motion/component styling only, not
+  // the section structure or sales copy (those are identical across themes).
+  // Defaults to "classic-starvega" (the current design). Existing client sites
+  // omit this line entirely (siteConfig is sync-blocklisted) and fall back to
+  // classic via resolveThemeSlug(), so nothing already live changes look.
+  // Options: classic-starvega | smash-bold | diner-classic | refined-elegant
+  theme: "classic-starvega" as ThemeSlug,
+
+  // Admin intro animation: "burger" (fast food) | "coffee" (café) | "pizza" (pizzeria)
+  loaderStyle: "burger",
+
+  // Starting color theme for a first-time visitor: "light" | "dark".
+  // The header toggle always lets visitors switch and their choice is
+  // remembered - this is only the default before they pick one. Keep it
+  // "light" unless a brand is meant to open dark.
+  defaultTheme: "light" as "light" | "dark",
+
+  // Main call-to-action button label, used on every "menu" button across the
+  // site. Set it to whatever fits: "Order now", "View our menu", "See the menu"…
+  menuCtaLabel: "Order now",
+
+  // Email the agency when someone opens the PUBLIC website (pre-launch tracking).
+  // On by default; set false once a site is live so real customer traffic
+  // doesn't flood the inbox. Dashboard/preview visits are always tracked.
+  trackWebsiteVisits: true,
+
+  // Loyalty / rewards program.
+  loyalty: {
+    // What members sign up FOR. A lowercase noun phrase, always used mid-sentence
+    // ("You're on the list for ...", "Sign up for ..."), so keep it generic and
+    // lowercase. Flows into the /rewards signup, the welcome text/email, the
+    // popup, and the success message.
+    incentive: "member specials, event invites, and offers you won't find anywhere else",
+  },
+
+  // Inline catering menu shown on /catering (design in CateringMenuDisplay).
+  // Edit these to change the menu - the first section renders full-width.
+  // `pdfUrl` is optional (a downloadable PDF in /public); omit to hide the button.
+  catering: {
+    pdfUrl: "",
+    // Catering menu entrance animation: "grill" (drifting smoke + embers) or "none".
+    animation: "grill",
+    menu: [
+      {
+        title: "Chicken",
+        note: "Each tray comes with rolls and pickles",
+        items: [
+          { name: "Hot Chicken Tenders", qty: "25 pieces", price: 65 },
+          { name: "Hot Chicken Tenders", qty: "50 pieces", price: 120 },
+          { name: "Wings", qty: "50 pieces", price: 75 },
+          { name: "Wings", qty: "100 pieces", price: 145 },
+        ],
+      },
+      {
+        title: "Sides",
+        items: [
+          { name: "Pan Mac & Cheese", price: 60 },
+          { name: "Pan Coleslaw", price: 40 },
+          { name: "Box of Fries", price: 35 },
+          { name: "Pan Baked Beans", price: 45 },
+        ],
+      },
+      {
+        title: "Extras",
+        items: [
+          { name: "Rolls (20)", price: 10 },
+          { name: "Comeback Sauce (pint)", price: 8 },
+        ],
+      },
+    ] as { title: string; note?: string; items: { name: string; qty?: string; price: number }[] }[],
+  },
+
+  // Contact & Location
+  address: "1829 M St NW, Washington, DC 20036",
+  street: "1829 M St NW",
+  city: "Washington",
+  state: "DC",
+  zip: "20036",
+  phone: "",
+  email: "hello@burninbirddc.com",
+  cateringEmail: "catering@burninbirddc.com",
+  timezone: "America/New_York",
+  lat: 38.9054,
+  lng: -77.0426,
+  googleMapsUrl:
+    "https://www.google.com/maps/search/?api=1&query=1829%20M%20St%20NW%2C%20Washington%2C%20DC%2020036",
+
+  // Social
+  instagram: "burninbirddc",
+  instagramUrl: "https://www.instagram.com/burninbirddc/",
+  facebookUrl: "",
+  tiktokUrl: "",
+  beholdFeedId: "",
+
+  // SEO
+  siteUrl: "https://burninbirddc.com",
+  seoTitle: "Burnin Bird Hot Chicken | Halal Nashville Hot Chicken in Washington, DC",
+  seoDescription:
+    "Burnin Bird Hot Chicken in Dupont Circle, Washington DC. Serving 100% Halal, hormone-free Nashville hot chicken sandwiches, tenders, loaded fries, and late-night eats.",
+  seoKeywords: [
+    "Burnin Bird Hot Chicken",
+    "Hot Chicken DC",
+    "Halal Hot Chicken Washington DC",
+    "Dupont Circle Halal Food",
+    "Nashville Hot Chicken Sandwich",
+    "Hot Honey Chicken DC",
+    "Late Night Food Dupont Circle",
+    "Halal Fast Food Washington DC",
+  ],
+  // Link previews now use the first gallery photo or the site logo (see
+  // lib/seo.ts + layout.tsx); this default is no longer the preview image.
+  ogImage: "/logo.png",
+
+  // Structured-data / business info (used in JSON-LD)
+  cuisines: ["American", "Hot Chicken", "Halal", "Fast Food"],
+  priceRange: "$$",
+
+  // Primary cuisine/dish for SEO (Principle 1, menu-market fit). Use the BROAD,
+  // most-searched term first, specialty framing second — "Hot Chicken" before
+  // "Nashville Hot Halal Tenders", "Mexican Food" before "Oaxacan Cuisine". Feeds
+  // the home title fallback, keywords, and (in themed heroes) an SEO eyebrow.
+  primaryDish: "Hot Chicken",
+
+  // Colors (Tailwind hex values - inspired by fiery orange & deep charcoal logo)
+  primaryColor: "#f97316",
+  secondaryColor: "#111827",
+  accentColor: "#ef4444",
+  // Outreach conversion layer (trial popup + read-only dashboard preview).
+  // Turn `enabled` off once a lead converts / the site goes live. `trialLengthDays`
+  // is for MY internal follow-up tracking only - it is never shown to the lead as
+  // a countdown or deadline. `savings` drives the estimated-savings math (default
+  // formula, override per client with real numbers when known).
+  outreach: {
+    enabled: true,
+    // Prices are NOT set here - they come from the single product-ladder source
+    // (src/lib/packages.ts, via getOutreach defaults): Pro anchor → Standard offer.
+    discountReason: "review",
+    trialLengthDays: 14,
+    calendlyUrl: "https://calendly.com/popdeveloper54/10-minute-meet",
+    signalKey: "burnin-bird",
+    savings: { estimatedOrdersPerDay: 20, avgOrderValue: 25, commissionPct: 20 },
+  },
+
+  // Hours (used for open/closed status) - hour values are 24h local time
+  // Open Daily 11 AM - 11 PM / Late Night
+  hours: [
+    { day: "Sunday", open: 11, close: 23 },
+    { day: "Monday", open: 11, close: 23 },
+    { day: "Tuesday", open: 11, close: 23 },
+    { day: "Wednesday", open: 11, close: 23 },
+    { day: "Thursday", open: 11, close: 23 },
+    { day: "Friday", open: 11, close: 24 },
+    { day: "Saturday", open: 11, close: 24 },
+  ] as { day: string; open: number | null; close: number | null }[],
+
+  // Home page text sections
+  home: {
+    heroHeadline: "DC's Premier Halal Hot Chicken",
+    heroSubHeadline: "100% Halal, hormone-free chicken fried crisp with custom heat levels",
+    heroSlides: [
+      {
+        image: "/general/generalPages/mainImage.jpg",
+        headline: "DC's Premier Halal Hot Chicken",
+        subheadline: "100% halal, fried crisp, your heat level.",
+        ctaLabel: "Order now",
+        ctaHref: "/Menu",
+      },
+      {
+        image: "/general/generalPages/enjoy.jpg",
+        headline: "Now Booking Catering",
+        subheadline: "Feeding a crowd? We've got you covered.",
+        ctaLabel: "See Catering",
+        ctaHref: "/catering",
+      },
+      {
+        image: "/general/generalPages/vibe.jpg",
+        headline: "Earn Every Time You Order",
+        subheadline: "Join the rewards club and rack up perks.",
+        ctaLabel: "Join Rewards",
+        ctaHref: "/rewards",
+      },
+    ] as { image: string; headline: string; subheadline: string; ctaLabel: string; ctaHref: string }[],
+    galleryTitle: "Burnin Bird Hot Chicken",
+    gallerySubtitle: "1829 M St NW (Dupont Circle), Washington, DC",
+    distinctiveFeatures: [
+      {
+        title: "100% Halal & Hormone Free Chicken",
+        description:
+          "We take pride in serving high-quality, hormone-free chicken tenders and breasts, prepared fresh daily and fried to crispy perfection.",
+        image: "/general/generalPages/enjoy.jpg",
+      },
+      {
+        title: "Custom Heat Levels & Signature Sauces",
+        description:
+          "Choose your spice level from No Heat to Burnin, served with our house sauces, whipped honey butter, hot honey, or signature coleslaw.",
+        image: "/general/generalPages/vibe.jpg",
+      },
+    ],
+    featuring: [
+      { name: "Takeaway", icon: "PiPackageFill" },
+      { name: "100% Halal", icon: "MdOutlineVerified" },
+      { name: "Catering", icon: "BsBagCheckFill" },
+      { name: "Late Night", icon: "IoMoonOutline" },
+    ],
+    faq: [
+      {
+        question: "Where is Burnin Bird Hot Chicken located?",
+        answer:
+          "We are located at 1829 M St NW in Dupont Circle, Washington, DC 20036.",
+      },
+      {
+        question: "Is your menu 100% Halal?",
+        answer:
+          "Yes! All of our chicken is 100% Halal and hormone-free.",
+      },
+      {
+        question: "What are your signature menu items?",
+        answer:
+          "Our fan favorites include the Classic Nashville Sandwich, Hot Honey Sandwich, Honey Butter Sandwich, Tenders Combo, and Fry Bowls.",
+      },
+      {
+        question: "What heat levels do you offer?",
+        answer:
+          "We offer 5 spice levels: No Heat, Mild, Medium, Hot, and Burnin.",
+      },
+      {
+        question: "What are your hours?",
+        answer:
+          "We are open daily from 11:00 AM until late night.",
+      },
+    ],
+  },
+
+  // Which optional sections are enabled (see FEATURES above)
+  features: FEATURES,
+
+  // Product tier - gates site + admin sections (see PACKAGE_TIER above).
+  packageTier: PACKAGE_TIER,
+
+  // Navbar links (derived from FEATURES + tier)
+  navLinks: ALL_NAV_LINKS.filter(enabled).map(pickLink),
+
+  // Footer
+  footer: {
+    get copyright() {
+      return `© ${new Date().getFullYear()} Burnin Bird Hot Chicken. All rights reserved.`;
+    },
+    links: ALL_FOOTER_LINKS.filter(enabled).map(pickLink),
+  },
+};
+
+export type SiteConfig = typeof SITE_CONFIG;
