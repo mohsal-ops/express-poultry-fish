@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "seed:defaults": "node prisma/seed.defaults.mjs",
+    "seed:menu": "node prisma/seedMenu.mjs",
     "new-project": "node scaffold/new-project.mjs",
     "postinstall": "prisma generate",
     "test": "vitest run",
