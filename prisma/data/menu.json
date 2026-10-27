@@ -1,0 +1,938 @@
+{
+  "categories": [
+    {
+      "name": "$12 Meals",
+      "slug": "12-meals",
+      "description": null,
+      "items": [
+        {
+          "name": "Tenders with French fries",
+          "slug": "tenders-with-french-fries",
+          "description": "3 Tenders with French fries",
+          "priceInCents": 1200,
+          "image": "/menu/tenders-with-french-fries.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Raw Fish (Sold Raw, Not Cooked)",
+      "slug": "raw-fish-sold-raw-not-cooked",
+      "description": "Raw fish scaled and gutted, sold raw, we will not cook any items on this list",
+      "items": [
+        {
+          "name": "Fresh wild caught Anchovies",
+          "slug": "fresh-wild-caught-anchovies",
+          "description": "One pound of wild-caught anchovies from Greece.",
+          "priceInCents": 2299,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Fresh wild caught whiting fish (3armout)",
+          "slug": "fresh-wild-caught-whiting-fish-3armout",
+          "description": "Fresh wild-caught whiting fish, sweet and mild flavor, 1lb.",
+          "priceInCents": 799,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Fresh wild caught black seabass",
+          "slug": "fresh-wild-caught-black-seabass",
+          "description": "wild caught fish with delicious flaky meat, and a great mild taste.",
+          "priceInCents": 1699,
+          "image": "/menu/fresh-wild-caught-black-seabass.jpg",
+          "featured": false
+        },
+        {
+          "name": "Golden pampano (zbydi fish)",
+          "slug": "golden-pampano-zbydi-fish",
+          "description": "a very popular buttery fish, great for grilling, frying, or just cooking 2 lbs",
+          "priceInCents": 2399,
+          "image": "/menu/golden-pampano-zbydi-fish.jpg",
+          "featured": false
+        },
+        {
+          "name": "Sea bream( ajaj) Dorade",
+          "slug": "sea-bream-ajaj-dorade",
+          "description": "White flaky meat, mild flavor, weighing 500-700 grams.",
+          "priceInCents": 1999,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "raw salmon filet 3.25lbs",
+          "slug": "raw-salmon-filet-3-25lbs",
+          "description": "3.25lb of raw chillian salmon filet.",
+          "priceInCents": 6999,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Fresh bronzini 400-600 grams",
+          "slug": "fresh-bronzini-400-600-grams",
+          "description": "from the Meditranian sea, a delicious buttery fish that can be fried, baked, or grilled.",
+          "priceInCents": 1699,
+          "image": "/menu/fresh-bronzini-400-600-grams.jpg",
+          "featured": false
+        },
+        {
+          "name": "raw wild caught gulf shrimp 16-20",
+          "slug": "raw-wild-caught-gulf-shrimp-16-20",
+          "description": "1 lb of wild caught gulf shrimp, peeled and deveined.",
+          "priceInCents": 1999,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Wild caught fresh red snapper",
+          "slug": "wild-caught-fresh-red-snapper",
+          "description": "Fresh wild caught Red snapper, a mild tasting fish, great for frying, or baking.",
+          "priceInCents": 2499,
+          "image": "/menu/wild-caught-fresh-red-snapper.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Specials",
+      "slug": "specials",
+      "description": null,
+      "items": [
+        {
+          "name": "pompano special grilled or fried",
+          "slug": "pompano-special-grilled-or-fried",
+          "description": "4lbs of grilled golden pomano(zbydi) on top of 3 lbs of vegetable rice, and a lage side of tahini sauce.",
+          "priceInCents": 7799,
+          "image": "/menu/pompano-special-grilled-or-fried.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Bakery",
+      "slug": "bakery",
+      "description": null,
+      "items": [
+        {
+          "name": "Yasmeen bakery pita bread",
+          "slug": "yasmeen-bakery-pita-bread",
+          "description": "10 pc of fresh pita bread",
+          "priceInCents": 399,
+          "image": "/menu/yasmeen-bakery-pita-bread.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Grilled Fish",
+      "slug": "grilled-fish",
+      "description": null,
+      "items": [
+        {
+          "name": "Grilled golden pampano( Zbydi)",
+          "slug": "grilled-golden-pampano-zbydi",
+          "description": "2 lb of delicious grilled buttery flavor, golden pompano is the perfect fish to try grilled, served with tahini sauce and lemon wedges.",
+          "priceInCents": 3199,
+          "image": "/menu/grilled-golden-pampano-zbydi.jpg",
+          "featured": false
+        },
+        {
+          "name": "Jumbp Grilled shrimp 1 lb",
+          "slug": "jumbp-grilled-shrimp-1-lb",
+          "description": "12 pcs of jumbo grilled shrimp marinated in our special blend of seasoning, served with shrimp sause and lemon wedges.",
+          "priceInCents": 2999,
+          "image": "/menu/jumbp-grilled-shrimp-1-lb.jpg",
+          "featured": false
+        },
+        {
+          "name": "whole grilled salmon filet 3 lbs",
+          "slug": "whole-grilled-salmon-filet-3-lbs",
+          "description": "Grilled whole salmon filet, typically featuring a savory marinade and char-grilled to enhance its natural flavors.",
+          "priceInCents": 7499,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Jumbo bronzini rosted or grilled 2.5 to 3 lbs whole fish",
+          "slug": "jumbo-bronzini-rosted-or-grilled-2-5-to-3-lbs-whole-fish",
+          "description": "Whole fish (3lbs) roasted to perfection or grilled, white buttery flesh with flavors your taste buds will never forget.",
+          "priceInCents": 7999,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "grilled seabream",
+          "slug": "grilled-seabream",
+          "description": "the perfect fish to grill, imported fresh from Greece has a delicious flavor and juicy white meat. Served with tahini sauce and lemon wedges.",
+          "priceInCents": 2499,
+          "image": "/menu/grilled-seabream.jpg",
+          "featured": false
+        },
+        {
+          "name": "Grilled bronzini",
+          "slug": "grilled-bronzini",
+          "description": "imported from Greece, the great bronzini grilled is sure to satisfy your taste buds, seasoned and grilled to perfection. served with our signature tahini sauce and lemon.",
+          "priceInCents": 2499,
+          "image": "/menu/grilled-bronzini.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Sandwiches",
+      "slug": "sandwiches",
+      "description": "Served w/ fries.",
+      "items": [
+        {
+          "name": "Fish Burger",
+          "slug": "fish-burger",
+          "description": "Hand-battered cod filet, lettuce, cheese & tartar sauce served with fries",
+          "priceInCents": 1699,
+          "image": "/menu/fish-burger.jpg",
+          "featured": false
+        },
+        {
+          "name": "Crispy Chicken Sandwich",
+          "slug": "crispy-chicken-sandwich",
+          "description": "Delicious crispy chicken breast, lettuce, cheese, and our own special sauce on a fresh brioche bun, served with French fries",
+          "priceInCents": 1699,
+          "image": "/menu/crispy-chicken-sandwich.jpg",
+          "featured": false
+        },
+        {
+          "name": "Honey Stung",
+          "slug": "honey-stung",
+          "description": "Bring on the sting with this sweet and Spicey chicken sandwich, served with pickles and fries.",
+          "priceInCents": 1699,
+          "image": "/menu/honey-stung.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Raw Fresh Amish Halal Chicken",
+      "slug": "raw-fresh-amish-halal-chicken",
+      "description": null,
+      "items": [
+        {
+          "name": "Raw Shish tawook( marinated chicken cubes.)",
+          "slug": "raw-shish-tawook-marinated-chicken-cubes",
+          "description": "seasoned chicken breast cubes rich with flavor and tenderness.",
+          "priceInCents": 1099,
+          "image": "/menu/raw-shish-tawook-marinated-chicken-cubes.jpg",
+          "featured": false
+        },
+        {
+          "name": "RAw Fresh Amish chicken Esclope sold by the lb, $11.99 lb",
+          "slug": "raw-fresh-amish-chicken-esclope-sold-by-the-lb-11-99-lb",
+          "description": "Marinated over night, hand breaded chicken Tenders. Sold by the lb",
+          "priceInCents": 1199,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Raw BBq marinated party wings",
+          "slug": "raw-bbq-marinated-party-wings",
+          "description": "1 lb of well seasoned bbq wings, ready to grill or bake.",
+          "priceInCents": 899,
+          "image": "/menu/raw-bbq-marinated-party-wings.jpg",
+          "featured": false
+        },
+        {
+          "name": "raw amish leg quarters",
+          "slug": "raw-amish-leg-quarters",
+          "description": "raw chicken legs per pc.",
+          "priceInCents": 249,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "fresh amish whole chicken ( RAW)",
+          "slug": "fresh-amish-whole-chicken-raw",
+          "description": "Zabiha halal fresh amish whole chicken",
+          "priceInCents": 1699,
+          "image": "/menu/fresh-amish-whole-chicken-raw.jpg",
+          "featured": false
+        },
+        {
+          "name": "Raw Boneless skinless amish chicken breast",
+          "slug": "raw-boneless-skinless-amish-chicken-breast",
+          "description": "boneless skinless breast sold by the lb, Zabiha halal chicken.",
+          "priceInCents": 799,
+          "image": "/menu/raw-boneless-skinless-amish-chicken-breast.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Drinks",
+      "slug": "drinks",
+      "description": null,
+      "items": [
+        {
+          "name": "coke zero",
+          "slug": "coke-zero",
+          "description": "The same great taste but with zero calories.",
+          "priceInCents": 279,
+          "image": "/menu/coke-zero.jpg",
+          "featured": false
+        },
+        {
+          "name": "Coke can",
+          "slug": "coke-can",
+          "description": "The cold, refreshing, sparkling classic that America loves.",
+          "priceInCents": 279,
+          "image": "/menu/coke-can.jpg",
+          "featured": false
+        },
+        {
+          "name": "Sprite can",
+          "slug": "sprite-can",
+          "description": "The cold, refreshing flavors of lemon and lime, perfectly blended.",
+          "priceInCents": 279,
+          "image": "/menu/sprite-can.jpg",
+          "featured": false
+        },
+        {
+          "name": "Seven up can",
+          "slug": "seven-up-can",
+          "description": "Effervescent lemon-lime soda in a can.",
+          "priceInCents": 279,
+          "image": "/menu/seven-up-can.jpg",
+          "featured": false
+        },
+        {
+          "name": "Coke 2 liter",
+          "slug": "coke-2-liter",
+          "description": "The cold, refreshing, sparkling classic that America loves.",
+          "priceInCents": 599,
+          "image": "/menu/coke-2-liter.jpg",
+          "featured": false
+        },
+        {
+          "name": "Diet Coke 2 liter",
+          "slug": "diet-coke-2-liter",
+          "description": "A crisp, refreshing taste you know and love with zero calories.",
+          "priceInCents": 599,
+          "image": "/menu/diet-coke-2-liter.jpg",
+          "featured": false
+        },
+        {
+          "name": "Sprite 2 liter",
+          "slug": "sprite-2-liter",
+          "description": "The cold, refreshing flavors of lemon and lime, perfectly blended.",
+          "priceInCents": 599,
+          "image": "/menu/sprite-2-liter.jpg",
+          "featured": false
+        },
+        {
+          "name": "Pepsi can",
+          "slug": "pepsi-can",
+          "description": "The bold, refreshing, robust cola",
+          "priceInCents": 279,
+          "image": "/menu/pepsi-can.jpg",
+          "featured": false
+        },
+        {
+          "name": "Seven up 2 liter",
+          "slug": "seven-up-2-liter",
+          "description": "Crisp, refreshing lemon-lime soda in a 2-liter bottle.",
+          "priceInCents": 599,
+          "image": "/menu/seven-up-2-liter.jpg",
+          "featured": false
+        },
+        {
+          "name": "Pepsi 2 liter",
+          "slug": "pepsi-2-liter",
+          "description": "The bold, refreshing, robust cola",
+          "priceInCents": 599,
+          "image": "/menu/pepsi-2-liter.png",
+          "featured": false
+        },
+        {
+          "name": "Die Pepsi 2 liter",
+          "slug": "die-pepsi-2-liter",
+          "description": "A crisp tasting, refreshing pop of sweet, fizzy bubbles without calories.",
+          "priceInCents": 598,
+          "image": "/menu/die-pepsi-2-liter.png",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Pitas",
+      "slug": "pitas",
+      "description": null,
+      "items": [
+        {
+          "name": "French Fries Sandwich",
+          "slug": "french-fries-sandwich",
+          "description": "Crispy fries, Garlic paste, coleslaw, & ketchup. Simple, yet very tasty.",
+          "priceInCents": 999,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Grilled Garlic Potato Bread",
+          "slug": "grilled-garlic-potato-bread",
+          "description": "Pita bread, stuffed with potatoes, garlic paste & sumac.",
+          "priceInCents": 899,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Express Chicken Sandwich",
+          "slug": "express-chicken-sandwich",
+          "description": "Mouth-watering grilled chicken, pickles, garlic paste, and special sauce, rolled inside a generous size pita, finished on the grill with our secret glaze.",
+          "priceInCents": 1499,
+          "image": "/menu/express-chicken-sandwich.jpg",
+          "featured": true
+        },
+        {
+          "name": "Express Tawook",
+          "slug": "express-tawook",
+          "description": "Grilled chicken Kababs, garlic paste, fries, Mayo, pickles all wrapped inside a fresh pita bread and toasted to perfection",
+          "priceInCents": 1499,
+          "image": "/menu/express-tawook.jpg",
+          "featured": true
+        }
+      ]
+    },
+    {
+      "name": "Hot Sides",
+      "slug": "hot-sides",
+      "description": null,
+      "items": [
+        {
+          "name": "Potato Wedges",
+          "slug": "potato-wedges",
+          "description": "Crisp potato wedges, available in small or large.",
+          "priceInCents": 899,
+          "image": "/menu/potato-wedges.jpg",
+          "featured": true
+        },
+        {
+          "name": "French Fries",
+          "slug": "french-fries",
+          "description": "Crispy golden strips of deliciousness served hot and seasoned to perfection.",
+          "priceInCents": 899,
+          "image": "/menu/french-fries.jpg",
+          "featured": true
+        },
+        {
+          "name": "Potato Balls",
+          "slug": "potato-balls",
+          "description": "fresh peeled potato bass seasoned with our signature potato seasoning, and baked to perfection. A healthy alternative to french fries.",
+          "priceInCents": 899,
+          "image": "/menu/potato-balls.jpg",
+          "featured": false
+        },
+        {
+          "name": "Honey Butter Biscuits",
+          "slug": "honey-butter-biscuits",
+          "description": "Honey butter biscuits, available in 1 or 6 pieces.",
+          "priceInCents": 199,
+          "image": "/menu/honey-butter-biscuits.jpg",
+          "featured": true
+        },
+        {
+          "name": "Rice (with Vegetables)",
+          "slug": "rice-with-vegetables",
+          "description": "Large rice mixed with an assortment of vegetables. 16 oz container",
+          "priceInCents": 899,
+          "image": "/menu/rice-with-vegetables.jpg",
+          "featured": false
+        },
+        {
+          "name": "Fried Corn",
+          "slug": "fried-corn",
+          "description": "Golden fried corn, options for single or half dozen servings.",
+          "priceInCents": 199,
+          "image": "/menu/fried-corn.jpg",
+          "featured": false
+        },
+        {
+          "name": "Mac & Cheese",
+          "slug": "mac-cheese",
+          "description": "a 12 oz cup of fresh creamy mac n cheese.",
+          "priceInCents": 1099,
+          "image": "/menu/mac-cheese.jpg",
+          "featured": true
+        },
+        {
+          "name": "Mashed Potatoes",
+          "slug": "mashed-potatoes",
+          "description": "Creamy mashed potatoes, available in a 12 oz cup",
+          "priceInCents": 1099,
+          "image": "/menu/mashed-potatoes.jpg",
+          "featured": true
+        }
+      ]
+    },
+    {
+      "name": "Cold Sides",
+      "slug": "cold-sides",
+      "description": null,
+      "items": [
+        {
+          "name": "Large taboli salad",
+          "slug": "large-taboli-salad",
+          "description": "Chopped parsley, tomatoes, and bulgur wheat mixed with fresh mint and a hint of lemon.",
+          "priceInCents": 1699,
+          "image": "/menu/large-taboli-salad.jpg",
+          "featured": false
+        },
+        {
+          "name": "Coleslaw",
+          "slug": "coleslaw",
+          "description": "Crisp shredded cabbage in a creamy, tangy dressing.",
+          "priceInCents": 699,
+          "image": "/menu/coleslaw.jpg",
+          "featured": true
+        },
+        {
+          "name": "Small fatosh salad",
+          "slug": "small-fatosh-salad",
+          "description": "Crisp lettuce, radishes, cucumbers, tomatoes, and toasted pita bread, tossed with fresh herbs and a light dressing.",
+          "priceInCents": 899,
+          "image": "/menu/small-fatosh-salad.jpg",
+          "featured": false
+        },
+        {
+          "name": "Large fatoush salad",
+          "slug": "large-fatoush-salad",
+          "description": "Crisp lettuce, cucumber, radish, tomato, mint, and parsley, topped with toasted pita bread and a tangy sumac dressing.",
+          "priceInCents": 1599,
+          "image": "/menu/large-fatoush-salad.jpg",
+          "featured": false
+        },
+        {
+          "name": "Small taboli salad",
+          "slug": "small-taboli-salad",
+          "description": "Finely chopped parsley, tomatoes, and onions mixed with bulgur wheat and fresh herbs.",
+          "priceInCents": 999,
+          "image": "/menu/small-taboli-salad.jpg",
+          "featured": false
+        },
+        {
+          "name": "Garlic Paste",
+          "slug": "garlic-paste",
+          "description": "Creamy garlic paste garnished with a drizzle of olive oil and a fresh parsley leaf.",
+          "priceInCents": 599,
+          "image": "/menu/garlic-paste.jpg",
+          "featured": false
+        },
+        {
+          "name": "Pasta salad",
+          "slug": "pasta-salad",
+          "description": "Zesty medley of pasta and fresh vegetables make this satisfying pasta salad.",
+          "priceInCents": 899,
+          "image": "/menu/pasta-salad.jpg",
+          "featured": false
+        },
+        {
+          "name": "Seafood salad",
+          "slug": "seafood-salad",
+          "description": "Blend of fresh seafood, crisp lettuce, and tangy dressing",
+          "priceInCents": 1499,
+          "image": "/menu/seafood-salad.jpg",
+          "featured": false
+        },
+        {
+          "name": "Bang bang shrimp pasta salad",
+          "slug": "bang-bang-shrimp-pasta-salad",
+          "description": "Tender shrimp and pasta in a creamy, tangy sauce with fresh herbs and a hint of spice.",
+          "priceInCents": 999,
+          "image": "/menu/bang-bang-shrimp-pasta-salad.jpg",
+          "featured": false
+        },
+        {
+          "name": "Baba Ghannouj",
+          "slug": "baba-ghannouj",
+          "description": "Creamy eggplant dip garnished with pomegranate seeds and fresh herbs.",
+          "priceInCents": 899,
+          "image": "/menu/baba-ghannouj.jpg",
+          "featured": false
+        },
+        {
+          "name": "Hummus",
+          "slug": "hummus",
+          "description": "Creamy chickpea puree garnished with whole chickpeas and a sprinkle of paprika.",
+          "priceInCents": 799,
+          "image": "/menu/hummus.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Fried Chicken",
+      "slug": "fried-chicken",
+      "description": null,
+      "items": [
+        {
+          "name": "Thighs",
+          "slug": "thighs",
+          "description": "The best part of the chicken Double breaded for extra crispy bite.",
+          "priceInCents": 299,
+          "image": "/menu/thighs.jpg",
+          "featured": true
+        },
+        {
+          "name": "Breast",
+          "slug": "breast",
+          "description": "Crispy seafood-infused chicken breast. Available in single pieces or by the dozen.",
+          "priceInCents": 599,
+          "image": "/menu/breast.jpg",
+          "featured": false
+        },
+        {
+          "name": "Sesame chicken bites",
+          "slug": "sesame-chicken-bites",
+          "description": "Breast meat bites covered in our special sweet and spicy sauce, topped with sesame seeds , one bite and you will be coming for more.",
+          "priceInCents": 1699,
+          "image": "/menu/sesame-chicken-bites.jpg",
+          "featured": false
+        },
+        {
+          "name": "Tender",
+          "slug": "tender",
+          "description": "A juicy crunchy chicken tender that will satisfy any craving.",
+          "priceInCents": 399,
+          "image": "/menu/tender.jpg",
+          "featured": false
+        },
+        {
+          "name": "Drums",
+          "slug": "drums",
+          "description": "crispy, juicy fired amish chicken drumstick, double hand breaded for the extra crunch.",
+          "priceInCents": 299,
+          "image": "/menu/drums.jpg",
+          "featured": true
+        },
+        {
+          "name": "Wings",
+          "slug": "wings",
+          "description": "Hand breaded halal amish chicken wings fried to perfection",
+          "priceInCents": 299,
+          "image": "/menu/wings.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Chicken for the Family",
+      "slug": "chicken-for-the-family",
+      "description": null,
+      "items": [
+        {
+          "name": "12 pc Mix",
+          "slug": "12-pc-mix",
+          "description": "Fried chicken with choice of single or combo serving. Ideal for family sharing.",
+          "priceInCents": 3999,
+          "image": "/menu/12-pc-mix.jpg",
+          "featured": false
+        },
+        {
+          "name": "24 pc Mix",
+          "slug": "24-pc-mix",
+          "description": "24 pc mix - Fried chicken in servings of single or combo.",
+          "priceInCents": 7499,
+          "image": "/menu/24-pc-mix.jpg",
+          "featured": false
+        },
+        {
+          "name": "12 pc Tenders",
+          "slug": "12-pc-tenders",
+          "description": "12 pc chicken tenders with options for single or combo serving.",
+          "priceInCents": 3999,
+          "image": "/menu/12-pc-tenders.jpg",
+          "featured": false
+        },
+        {
+          "name": "16 pc Mix",
+          "slug": "16-pc-mix",
+          "description": "A selection of fried chicken pieces. Available as single serving or combo. Ideal for family sharing.",
+          "priceInCents": 5399,
+          "image": "/menu/16-pc-mix.jpg",
+          "featured": false
+        },
+        {
+          "name": "16 pc Tenders",
+          "slug": "16-pc-tenders",
+          "description": "16 pc chicken tenders. Options: single or combo serving.",
+          "priceInCents": 5399,
+          "image": "/menu/16-pc-tenders.jpg",
+          "featured": false
+        },
+        {
+          "name": "24 pc Tenders",
+          "slug": "24-pc-tenders",
+          "description": "Seafood-inspired chicken tenders. Serving options: single or combo.",
+          "priceInCents": 7499,
+          "image": "/menu/24-pc-tenders.jpg",
+          "featured": false
+        },
+        {
+          "name": "8 pc Tenders",
+          "slug": "8-pc-tenders",
+          "description": "8 pc chicken tenders. Available as single serving or combo. Ideal for family sharing.",
+          "priceInCents": 2799,
+          "image": "/menu/8-pc-tenders.jpg",
+          "featured": false
+        },
+        {
+          "name": "8 pc Mix",
+          "slug": "8-pc-mix",
+          "description": "A selection of 8 fried chicken pieces. Options include single or combo serving.",
+          "priceInCents": 2799,
+          "image": "/menu/8-pc-mix.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Chester's Snacks",
+      "slug": "chester-s-snacks",
+      "description": "with a small side.",
+      "items": [
+        {
+          "name": "Sesame Chicken (1 lb)",
+          "slug": "sesame-chicken-1-lb",
+          "description": "Chicken chunks mixed with honey stinging sauce tossed in sesame seeds.",
+          "priceInCents": 1699,
+          "image": "/menu/sesame-chicken-1-lb.jpg",
+          "featured": false
+        },
+        {
+          "name": "Dozen Nuggets",
+          "slug": "dozen-nuggets",
+          "description": "Mac & Cheese, Mashed Potatoes, French Fries, Potato Wedges, or Potato Balls.",
+          "priceInCents": 899,
+          "image": "/menu/dozen-nuggets.jpg",
+          "featured": false
+        },
+        {
+          "name": "Wing Dings 6pc",
+          "slug": "wing-dings-6pc",
+          "description": "Plain, buffalo, BBQ.",
+          "priceInCents": 899,
+          "image": "/menu/raw-bbq-marinated-party-wings.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Chicken Dinners",
+      "slug": "chicken-dinners",
+      "description": null,
+      "items": [
+        {
+          "name": "Whole Grilled Chicken",
+          "slug": "whole-grilled-chicken",
+          "description": "Served with potato garlic bread & garlic sauce.",
+          "priceInCents": 3499,
+          "image": "/menu/whole-grilled-chicken.jpg",
+          "featured": false
+        },
+        {
+          "name": "Rotisserie Chicken",
+          "slug": "rotisserie-chicken",
+          "description": "Served with garlic, pickles, & flat bread.",
+          "priceInCents": 2299,
+          "image": "/menu/rotisserie-chicken.jpg",
+          "featured": true
+        }
+      ]
+    },
+    {
+      "name": "Seafood Dinners",
+      "slug": "seafood-dinners",
+      "description": null,
+      "items": [
+        {
+          "name": "Salmon Dinner",
+          "slug": "salmon-dinner",
+          "description": "Served with rice",
+          "priceInCents": 2399,
+          "image": "/menu/salmon-dinner.jpg",
+          "featured": false
+        },
+        {
+          "name": "Grilled Bronzini Dinner",
+          "slug": "grilled-bronzini-dinner",
+          "description": "Perfectly seasoned and grilled to perfection. Served with rice; coleslaw and tahini sauce..",
+          "priceInCents": 3199,
+          "image": "/menu/grilled-bronzini.jpg",
+          "featured": false
+        },
+        {
+          "name": "Red snapper dinner",
+          "slug": "red-snapper-dinner",
+          "description": "Fresh wild caught red snapper fried to perfection A sweet mild fish with two sides( fries and coleslaw .",
+          "priceInCents": 3199,
+          "image": "/menu/red-snapper-dinner.jpg",
+          "featured": false
+        },
+        {
+          "name": "Fried Cod Dinner",
+          "slug": "fried-cod-dinner",
+          "description": "Served with fries & coleslaw.",
+          "priceInCents": 2399,
+          "image": "/menu/fried-cod-dinner.jpg",
+          "featured": false
+        },
+        {
+          "name": "Fried bronzini dinner",
+          "slug": "fried-bronzini-dinner",
+          "description": "delicious crispy mild taste, served with fries , coleslaw , and tahini sause.",
+          "priceInCents": 2999,
+          "image": "/menu/fried-bronzini-dinner.jpg",
+          "featured": false
+        },
+        {
+          "name": "grilled seabream(Ajaj)",
+          "slug": "grilled-seabream-ajaj",
+          "description": "imported from Greece, a delicious mediterranean fish that is sure to satisfy your taste bud, seasoned with our signature mis and grilled to perfection along with a side of rice and coleslaw.",
+          "priceInCents": 3199,
+          "image": "/menu/grilled-seabream.jpg",
+          "featured": false
+        },
+        {
+          "name": "Jumbo fried Shrimp Dinner",
+          "slug": "jumbo-fried-shrimp-dinner",
+          "description": "Served with coleslaw & fries.",
+          "priceInCents": 2899,
+          "image": "/menu/jumbo-fried-shrimp-dinner.jpg",
+          "featured": false
+        },
+        {
+          "name": "Grilled Shrimp (1 lb)",
+          "slug": "grilled-shrimp-1-lb",
+          "description": "Served with shrimp sauce & lemon wedge.",
+          "priceInCents": 2599,
+          "image": "/menu/grilled-shrimp-1-lb.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Fried Fish",
+      "slug": "fried-fish",
+      "description": null,
+      "items": [
+        {
+          "name": "Bronzini fried",
+          "slug": "bronzini-fried",
+          "description": "A fresh whole fish imported from the medetranian sea, fried to golden crisp perfection served with tahini sauce and fried pita bread",
+          "priceInCents": 2199,
+          "image": "/menu/grilled-seabream.jpg",
+          "featured": false
+        },
+        {
+          "name": "FRied ocean smelt ( 1 lb)",
+          "slug": "fried-ocean-smelt-1-lb",
+          "description": "Crispy fried ocean smelt, typically breaded and seasoned, offering a delightful seafood experience.",
+          "priceInCents": 1799,
+          "image": "/menu/fried-ocean-smelt-1-lb.jpg",
+          "featured": false
+        },
+        {
+          "name": "Fried sea bream",
+          "slug": "fried-sea-bream",
+          "description": "A deliciously fried fish imported from Greece , one bite and you are hocked.",
+          "priceInCents": 2199,
+          "image": "/menu/fried-sea-bream.jpg",
+          "featured": false
+        },
+        {
+          "name": "Tilapia filet",
+          "slug": "tilapia-filet",
+          "description": "Tender tilapia fillets seasoned with a hint of lemon and black pepper, garnished with fresh basil leaves.",
+          "priceInCents": 1199,
+          "image": "/menu/tilapia-filet.jpg",
+          "featured": false
+        },
+        {
+          "name": "Ocean perch filet (1 lb)",
+          "slug": "ocean-perch-filet-1-lb",
+          "description": "Golden fried filets of wild caught ocean perch is sure to satisfy your fish cravings.",
+          "priceInCents": 1299,
+          "image": "/menu/ocean-perch-filet-1-lb.jpg",
+          "featured": false
+        },
+        {
+          "name": "Red mullet fried",
+          "slug": "red-mullet-fried",
+          "description": "imported from Greece a very popular fish with a distinctive taste and flavor.",
+          "priceInCents": 3199,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "Black sea bass",
+          "slug": "black-sea-bass",
+          "description": "Crispy black sea bass served with seasoned, sautéed potato cubes and garnished with fresh herbs and a lemon wedge.",
+          "priceInCents": 1699,
+          "image": "/menu/black-sea-bass.jpg",
+          "featured": false
+        },
+        {
+          "name": "Fried whole red snapper fish",
+          "slug": "fried-whole-red-snapper-fish",
+          "description": "Crispy whole red snapper garnished with lemon slices, served with fresh herbs and garlic cloves.",
+          "priceInCents": 2499,
+          "image": "/menu/fried-whole-red-snapper-fish.jpg",
+          "featured": false
+        },
+        {
+          "name": "golden pampano( Zbaidi)",
+          "slug": "golden-pampano-zbaidi",
+          "description": "a delicious buttery fish fried to perfection.",
+          "priceInCents": 2899,
+          "image": "/menu/pompano-special-grilled-or-fried.jpg",
+          "featured": false
+        },
+        {
+          "name": "Fried whiting سمك عرموت مقلي",
+          "slug": "fried-whiting",
+          "description": "1 lb of Fresh ocean fish with a mild taste fried to perfection, and served with fried bread and Tahini sauce. Sold by the lb .",
+          "priceInCents": 1199,
+          "image": "/menu/fried-whiting.jpg",
+          "featured": true
+        },
+        {
+          "name": "1 lb fried jumbo shrimp",
+          "slug": "1-lb-fried-jumbo-shrimp",
+          "description": "A crispy handed breaded jumbo fried shrimp, one bite and you will be hooked.",
+          "priceInCents": 2499,
+          "image": "/menu/1-lb-fried-jumbo-shrimp.jpg",
+          "featured": false
+        }
+      ]
+    },
+    {
+      "name": "Dessert",
+      "slug": "dessert",
+      "description": null,
+      "items": [
+        {
+          "name": "Crème Carmel",
+          "slug": "cr-me-carmel",
+          "description": "A very generous portion of a very delicious homemade dessert that will keep you asking for more.",
+          "priceInCents": 1299,
+          "image": null,
+          "featured": false
+        },
+        {
+          "name": "KashtA",
+          "slug": "kashta",
+          "description": "Once you try this dessert you will thank us over and over, this home made dessert is the talk of town.",
+          "priceInCents": 1099,
+          "image": null,
+          "featured": false
+        }
+      ]
+    }
+  ]
+}
